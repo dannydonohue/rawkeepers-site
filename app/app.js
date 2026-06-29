@@ -1,5 +1,4 @@
-// Shared RAW Keepers UI logic - used by BOTH skins (Liquid Glass + Camera back).
-// Both skins expose the SAME element ids; only the shell/CSS differ.
+// RAW Keepers UI logic for the camera-back layout (the one and only skin).
 
 const glow = document.getElementById('glow');
 if (glow) {
@@ -94,7 +93,7 @@ document.querySelectorAll('[data-tip]').forEach(el=>{
 });
 
 function selectivity(){return 1 - state.cull_amt/100;}
-function tog(k){state[k]=!state[k];const el=document.getElementById('o_'+k);if(el)el.classList.toggle('on',state[k]);sndSwitch();}
+function tog(k){state[k]=!state[k];const el=document.getElementById('o_'+k);if(el)el.classList.toggle('on',state[k]);sndSwitch();if(k==='product')applyProductMode();}
 async function upgrade(){
   if(window.pywebview&&window.pywebview.api&&window.pywebview.api.activate_pro){   // desktop app: enter a key
     var key=prompt('Enter your RAW Keepers Pro license key:');
@@ -123,7 +122,6 @@ function applyPlan(){
 }
 function toggleSettings(){const s=document.getElementById('settings'),d=document.getElementById('disc');
   if(s)s.classList.toggle('open');if(d)d.classList.toggle('open');}
-async function switchSkin(){try{await window.pywebview.api.set_skin();}catch(e){}}
 
 async function pick(which){const p=await window.pywebview.api.choose_folder();
   if(p){state[which]=p;const c=document.getElementById(which);c.textContent=p;c.classList.add('set');}}
@@ -139,6 +137,7 @@ function fmtTime(s){if(s<90)return s+' seconds';const m=s/60;return m<90?Math.ro
 function folders(kind){return (kind==='dng'||kind==='raw'||kind==='jpg')?[state.cull_src,state.cull_dst]:[state.edit_src,state.edit_dst];}
 async function run(kind){
   if(state.busy)return;
+  if(kind==='edit'&&state.product){return runProduct();}
   state.activeKind=kind;
   const [src,dst]=folders(kind);
   if(!src){setStatus('Please choose the photos folder for this step.');return;}
@@ -160,13 +159,114 @@ function showModal(kind,est,dst){
   if(!est.enough)body+=`<div class="warn">Not enough free space on ${est.drive}. Choose a destination with more room.</div>`;
   document.getElementById('m_body').innerHTML=body;
   const go=document.getElementById('m_go');go.classList.toggle('disabled',!est.enough);
+  go.style.display='';go.textContent='Proceed';const cb=document.getElementById('m_cancel');if(cb)cb.textContent='Cancel';
   go.onclick=()=>{closeModal();start(kind,dst);};
   document.getElementById('modal').classList.add('show');
 }
 function closeModal(){document.getElementById('modal').classList.remove('show');}
+
+async function showAbout(){
+  let info={};try{info=await window.pywebview.api.app_info();}catch(e){}
+  const pro=!!state.pro;
+  document.getElementById('m_title').textContent='About '+(info.name||'RAW Keepers');
+  let body=
+    '<div class="line"><span>Version</span><span>'+(info.version||'—')+'</span></div>'+
+    '<div class="line"><span>Your plan</span><span style="color:'+(pro?'#34d39a':'#ffb27a')+';font-weight:700">'+(pro?'Pro — unlocked ✓':'Free')+'</span></div>';
+  if(!pro) body+='<div class="line" style="cursor:pointer;color:#9fb3ff" onclick="closeModal();upgrade()"><span>Have a license key?</span><span>Enter it →</span></div>';
+  body+=
+    '<div class="line"><span>Privacy</span><span>On-device · photos never leave your PC</span></div>'+
+    '<div class="line"><span>Support</span><span>'+(info.support||'support@rawkeepers.com')+'</span></div>'+
+    '<div class="line"><span>Website</span><span>'+(info.site||'rawkeepers.com')+'</span></div>'+
+    '<div class="line" id="upd_row"><span>Updates</span><span class="upd_val" style="cursor:pointer;color:#9fb3ff" onclick="checkUpdate()">Check now →</span></div>'+
+    '<div class="line" style="cursor:pointer;color:#9fb3ff" onclick="showTerms()"><span>Terms of Use</span><span>View →</span></div>';
+  document.getElementById('m_body').innerHTML=body;
+  const go=document.getElementById('m_go');go.classList.remove('disabled');go.style.display='';
+  const cb=document.getElementById('m_cancel');if(cb)cb.textContent='Close';
+  if(pro){go.textContent='Done';go.onclick=()=>closeModal();}
+  else{go.textContent='Upgrade to Pro';go.onclick=()=>{closeModal();openPricing();};}
+  document.getElementById('modal').classList.add('show');
+}
+async function checkUpdate(){
+  const row=document.getElementById('upd_row');if(!row)return;
+  const val=row.querySelector('.upd_val');if(!val)return;
+  val.textContent='Checking…';val.style.cursor='default';val.onclick=null;
+  let r={};try{r=await window.pywebview.api.check_update();}catch(e){r={error:1};}
+  if(r&&r.update_available){val.innerHTML='<span style="color:#ffb27a">v'+r.latest+' available</span> · <a style="cursor:pointer;color:#9fb3ff" onclick="openSite()">Download →</a>';}
+  else if(r&&!r.error){val.innerHTML='<span style="color:#34d39a">Up to date · '+(r.current||'')+'</span>';}
+  else{val.innerHTML='<span style="color:#9aa3ad">Offline — on '+((r&&r.current)||'this version')+'</span> · <a style="cursor:pointer;color:#9fb3ff" onclick="checkUpdate()">retry</a>';}
+}
+function openSite(){try{window.pywebview.api.open_url('https://rawkeepers.com');}catch(e){}}
+function openPricing(){try{window.pywebview.api.open_url('https://rawkeepers.com/#pricing');}catch(e){}}
+async function showTerms(){
+  let t='';try{t=await window.pywebview.api.terms_text();}catch(e){}
+  t=(t||'Terms unavailable.').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});
+  document.getElementById('m_title').textContent='Terms of Use';
+  document.getElementById('m_body').innerHTML='<div style="max-height:300px;overflow:auto;font-size:12px;color:#c9cad2;white-space:pre-wrap;line-height:1.45">'+t+'</div>';
+  const go=document.getElementById('m_go');go.style.display='';go.classList.remove('disabled');go.textContent='Back';go.onclick=()=>showAbout();
+}
 async function start(kind,dst){setBusy(true);setProg(0);setStatus('Starting…');
   await window.pywebview.api.start(kind,dst,{denoise:state.denoise/100,retouch:state.retouch/100,
     straighten:state.straighten,vupright:state.vupright,autolight:state.autolight,enhance:state.enhance,stage:state.stage,sport:state.sport});}
+
+/* ---- Product Photos mode ---- */
+function applyProductMode(){
+  const on=!!state.product;
+  const pp=document.getElementById('prodpanel'); if(pp)pp.style.display=on?'block':'none';
+  const dsc=document.getElementById('disc'); if(dsc)dsc.style.display=on?'none':'';
+  const st=document.getElementById('settings'); if(st){if(on)st.classList.remove('open');st.style.display=on?'none':'';}
+  const be=document.getElementById('b_edit');
+  if(be){if(be.classList.contains('soft'))be.innerHTML=on?'<b>Enhance Products</b>on background':'<b>Edit All</b>Phone JPG';
+    else be.innerHTML=on?'Enhance Products&nbsp;&nbsp;→&nbsp;&nbsp;on background':'Edit All&nbsp;&nbsp;→&nbsp;&nbsp;Print&nbsp;+&nbsp;Phone';}
+  const sec=document.querySelector('#page_edit .sec'); if(sec)sec.textContent=on?'PRODUCT PHOTOS':'EDIT & FINISH';
+  if(on&&!state.bgLoaded)loadBackgrounds();
+}
+async function loadBackgrounds(){
+  const grid=document.getElementById('bggrid'); if(!grid)return;
+  let bgs=[]; try{bgs=await window.pywebview.api.list_backgrounds();}catch(e){}
+  if(bgs&&bgs.error){setStatus(bgs.error);return;}
+  if(!bgs||!bgs.length)return;
+  state.bgLoaded=true; grid.innerHTML='';
+  bgs.forEach(b=>{const d=document.createElement('div');d.className='bgthumb';d.title=b.name;
+    d.innerHTML='<img src="'+b.thumb+'" alt=""><span>'+b.name+'</span>';
+    d.onclick=()=>selectBackground(b,d);grid.appendChild(d);});
+  const def=bgs.find(b=>b.id==='b_champagne')||bgs[0];
+  if(def)selectBackground(def,grid.children[bgs.indexOf(def)]);
+}
+function selectBackground(b,el){
+  state.bgId=b.id;state.bgPath=b.path;state.bgName=b.name;
+  const all=document.querySelectorAll('#bggrid .bgthumb');for(let i=0;i<all.length;i++)all[i].classList.remove('sel');
+  if(el)el.classList.add('sel');
+  const n=document.getElementById('bgsel_name');if(n)n.textContent='— '+b.name;
+}
+async function addBackground(){
+  try{const r=await window.pywebview.api.add_background();
+    if(r&&r.error){setStatus(r.error);return;}
+    if(r&&r.cancelled)return;
+    state.bgLoaded=false;await loadBackgrounds();setStatus('Background added.');
+  }catch(e){setStatus('Could not add background: '+e);}
+}
+async function runProduct(){
+  if(state.busy)return;
+  state.activeKind='product';
+  const src=state.edit_src,dst=state.edit_dst;
+  if(!src){setStatus('Choose the product photos folder (SRC).');return;}
+  if(!dst){setStatus('Choose where to save the results (OUT).');return;}
+  setStatus('Counting product photos…');
+  const pf=await window.pywebview.api.product_preflight(src);
+  if(pf.error){setStatus(pf.error);return;}
+  if(!pf.count){setStatus('No product photos found in that folder.');return;}
+  document.getElementById('m_title').textContent='Enhance Products';
+  document.getElementById('m_body').innerHTML=
+    '<div class="line"><span>'+pf.count+' product photo(s)</span></div>'+
+    '<div class="line"><span>Background</span><span>'+(state.bgName||'Plain white')+'</span></div>'+
+    '<div class="line"><span>Output</span><span>1:1 · product on background</span></div>';
+  const go=document.getElementById('m_go');go.classList.remove('disabled');
+  go.style.display='';go.textContent='Proceed';const cb=document.getElementById('m_cancel');if(cb)cb.textContent='Cancel';
+  go.onclick=()=>{closeModal();startProduct(dst);};
+  document.getElementById('modal').classList.add('show');
+}
+async function startProduct(dst){setBusy(true);setProg(0);setStatus('Enhancing products…');
+  await window.pywebview.api.start('product',dst,{src:state.edit_src,bg:state.bgPath||'white'});}
 
 function prog(i,n,text){if(n>0)setProg(i/n);setStatus(text+(n>0?`   (${i}/${n})`:''));}
 function preview(stage,name,url){
@@ -185,6 +285,7 @@ function setBrand(which,vendor){const map={intel:'logo_intel.png',amd:'logo_amd.
   const img=document.getElementById(which+'_logo'),lbl=document.getElementById(which+'_lbl');
   if(img&&map[vendor]){img.src=map[vendor];img.style.display='inline-block';if(lbl)lbl.style.display='none';}}
 window.addEventListener('pywebviewready',async()=>{
+  try{ if(!(await window.pywebview.api.agreement_status())) showAgreement(); }catch(e){}
   try{const s=document.getElementById('specs');if(s)s.textContent=await window.pywebview.api.sysinfo();}catch(e){}
   try{const v=await window.pywebview.api.vendors();setBrand('cpu',v.cpu);setBrand('gpu',v.gpu);
     if(v.mem==='unified'){const r=document.getElementById('ram_lbl');if(r)r.textContent='Unified';}}catch(e){}
@@ -193,3 +294,38 @@ window.addEventListener('pywebviewready',async()=>{
   tickUsage();
 });
 applyPlan();   // initial render (Free until pro_status confirms Pro)
+
+// First-run Terms-of-Use gate: a blocking overlay shown until the user accepts (stored once per machine).
+function showAgreement(){
+  if(document.getElementById('eula_gate'))return;
+  const o=document.createElement('div');o.id='eula_gate';
+  o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(8,5,12,.93);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-family:inherit;color:#eee;';
+  o.innerHTML=`<div style="max-width:560px;width:90%;max-height:86vh;overflow:auto;background:#15131c;border:1px solid #2a2733;border-radius:16px;padding:24px 28px;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <h2 style="margin:0 0 4px;font-size:19px;color:#fff">Welcome to RAW Keepers</h2>
+    <p style="margin:0 0 12px;font-size:13px;color:#b9b6c2">Please read and agree to continue.</p>
+    <div style="font-size:13px;line-height:1.55;color:#d6d3de">
+      <p><b>Your photos, your responsibility.</b> RAW Keepers edits the photos you bring in. You keep all rights to your photos and results. By using the app you confirm that:</p>
+      <ul style="margin:8px 0;padding-left:18px">
+        <li>You own the photos you import, or have permission to edit them.</li>
+        <li>You have the right to use what's shown in them — products, packaging, logos, and any people.</li>
+        <li>You won't import photos you don't have rights to (e.g. a brand's own marketing images). Owning a product lets you edit your own photo of it — not someone else's photo of it.</li>
+      </ul>
+      <p>The app is a tool that runs on your device and gives editing suggestions — review the results and keep backups. It is provided "as is", and you are responsible for how you use the images you create, including copyright, trademark and privacy laws where you publish or sell. To the extent the law allows, the provider is not liable for your content or use, and you agree to cover any claims that arise from it.</p>
+    </div>
+    <a id="eula_full_link" href="#" style="font-size:12px;color:#ff9b50;text-decoration:none">▸ Read the full Terms of Use</a>
+    <pre id="eula_full" style="display:none;white-space:pre-wrap;font-size:11px;line-height:1.45;color:#bfbcc8;background:#0e0c14;border:1px solid #2a2733;border-radius:10px;padding:12px;max-height:220px;overflow:auto;margin:10px 0 0"></pre>
+    <label style="display:flex;align-items:center;gap:9px;margin:16px 0 14px;font-size:13px;color:#eee;cursor:pointer">
+      <input type="checkbox" id="eula_ck" style="width:17px;height:17px;accent-color:#ff7a1a"> I have read and agree to the Terms of Use.</label>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button id="eula_decline" style="padding:9px 16px;border-radius:9px;border:1px solid #3a3743;background:transparent;color:#b9b6c2;font-size:13px;cursor:pointer">Decline &amp; Quit</button>
+      <button id="eula_agree" style="padding:9px 18px;border-radius:9px;border:0;background:#3a3743;color:#777;font-size:13px;cursor:not-allowed" disabled>I Agree</button>
+    </div></div>`;
+  document.body.appendChild(o);
+  const ck=o.querySelector('#eula_ck'),ag=o.querySelector('#eula_agree');
+  ck.checked=false; ag.disabled=true;   // force active consent: start unchecked + I-Agree disabled
+  ck.addEventListener('change',()=>{ag.disabled=!ck.checked;ag.style.cursor=ck.checked?'pointer':'not-allowed';ag.style.background=ck.checked?'#ff7a1a':'#3a3743';ag.style.color=ck.checked?'#fff':'#777';});
+  o.querySelector('#eula_full_link').addEventListener('click',async e=>{e.preventDefault();const f=o.querySelector('#eula_full');
+    if(f.style.display==='none'){try{f.textContent=await window.pywebview.api.terms_text();}catch(_){f.textContent='(full terms unavailable)';}f.style.display='block';}else f.style.display='none';});
+  ag.addEventListener('click',async()=>{if(!ck.checked)return;try{await window.pywebview.api.accept_agreement();}catch(_){}o.remove();});
+  o.querySelector('#eula_decline').addEventListener('click',()=>{try{window.pywebview.api.quit();}catch(_){try{window.close();}catch(__){}}});
+}
