@@ -452,7 +452,7 @@ f.addEventListener('submit',function(e){e.preventDefault();
   data.append('_template','table');
   data.append('_captcha','false');
   data.append('_autoresponse',"Thanks for joining the RAW Keepers beta — welcome aboard!\n\nDownload the Windows beta here:\nhttps://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.22.6/RAWKeepers-beta-win64.zip\n\nQuick start:\n1) Unzip it anywhere, then run RAWKeepers.exe.\n2) If Windows shows 'Windows protected your PC', click 'More info' then 'Run anyway' (this beta isn't code-signed yet).\n3) No install needed — it's a self-contained folder; delete the folder to remove it.\n\nIt reads RAW from Olympus, Sony, Canon, Fujifilm, Panasonic, Leica/DNG and Nikon (lossless), plus JPG — all on-device, so your photos never leave your computer. The beta expires July 29, 2026.\n\nWe'd love your feedback: just reply to this email with anything confusing, broken, or great — and which camera and RAW format you tried.\n\n— The RAW Keepers team\nrawkeepers.com");
-  fetch('https://formsubmit.co/ajax/support@rawkeepers.com',{method:'POST',headers:{'Accept':'application/json'},body:data})
+  fetch('https://formsubmit.co/ajax/dannydbros@gmail.com',{method:'POST',headers:{'Accept':'application/json'},body:data})
     .then(function(r){return r.json();})
     .then(function(){if(m)m.textContent="Thanks — you're on the beta list! We'll email you when your download is ready.";f.reset();if(other)other.style.display='none';})
     .catch(function(){if(m){m.style.color='#ff9b6b';m.textContent="Couldn't submit just now — please email support@rawkeepers.com and we'll add you.";}});
