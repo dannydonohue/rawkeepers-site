@@ -391,10 +391,9 @@
       <div class="eyebrow">Beta</div>
       <h2>Join the RAW Keepers beta.</h2>
       <p>We're rolling out invites in waves. Leave your email and we'll tell you the moment your download is ready — for Windows (Mac coming later).</p>
-      <form class="beta-form" id="beta-form" name="beta" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-        <input type="hidden" name="form-name" value="beta">
-        <p hidden><label>Leave this empty: <input name="bot-field"></label></p>
+      <form class="beta-form" id="beta-form">
         <input type="email" name="email" required placeholder="you@email.com" aria-label="Email address">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <button class="btn btn-primary" type="submit">Notify me</button>
       </form>
       <div class="beta-msg" id="beta-msg"></div>
@@ -423,7 +422,20 @@
 </footer>
 
 <script>(function(){var w=document.getElementById('appshot');if(!w)return;var f=w.querySelector('iframe');function s(){var sc=w.clientWidth/1040;f.style.transform='scale('+sc+')';w.style.height=Math.round(706*sc)+'px';}addEventListener('resize',s);s();setTimeout(s,250);})();</script>
-<script>(function(){var f=document.getElementById('beta-form');if(!f)return;f.addEventListener('submit',function(e){e.preventDefault();var m=document.getElementById('beta-msg');var i=f.querySelector('input[type=email]');var em=i?(i.value||'').trim():'';if(!em)return;location.href='mailto:support@rawkeepers.com?subject='+encodeURIComponent('RAW Keepers beta access')+'&body='+encodeURIComponent('Please add me to the RAW Keepers beta. Email: '+em);if(m)m.textContent="Thanks! Your email app will open to confirm — or write support@rawkeepers.com.";f.reset();});})();</script>
+<script>(function(){var f=document.getElementById('beta-form');if(!f)return;
+f.addEventListener('submit',function(e){e.preventDefault();
+  var m=document.getElementById('beta-msg');var i=f.querySelector('input[type=email]');
+  var em=i?(i.value||'').trim():'';if(!em)return;
+  if(m){m.style.color='';m.textContent='Sending…';}
+  var data=new FormData(f);
+  data.append('_subject','New RAW Keepers beta signup');
+  data.append('_template','table');
+  data.append('_captcha','false');
+  fetch('https://formsubmit.co/ajax/support@rawkeepers.com',{method:'POST',headers:{'Accept':'application/json'},body:data})
+    .then(function(r){return r.json();})
+    .then(function(){if(m)m.textContent="Thanks — you're on the beta list! We'll email you when your download is ready.";f.reset();})
+    .catch(function(){if(m){m.style.color='#ff9b6b';m.textContent="Couldn't submit just now — please email support@rawkeepers.com and we'll add you.";}});
+});})();</script>
 <script>document.querySelectorAll('.ba').forEach(function(b){var bef=b.querySelector('.before'),h=b.querySelector('.ba-handle');function s(p){p=Math.max(2,Math.min(98,p));bef.style.clipPath='inset(0 '+(100-p)+'% 0 0)';h.style.left=p+'%';}b.addEventListener('pointermove',function(e){var r=b.getBoundingClientRect();s((e.clientX-r.left)/r.width*100);});s(50);});</script>
 <script>(function(){
   var strip=document.getElementById('cullstrip'); if(!strip) return;
