@@ -399,7 +399,12 @@
       <div class="eyebrow">Beta</div>
       <h2>Join the RAW Keepers beta.</h2>
       <p>We're rolling out invites in waves. Leave your email and we'll tell you the moment your download is ready — for Windows (Mac coming later).</p>
-      <form class="beta-form" id="beta-form">
+      <form class="beta-form" id="beta-form" action="https://formsubmit.co/5a2a1dd312681572024271fde90e43f4" method="POST">
+        <input type="hidden" name="_subject" value="New RAW Keepers beta signup">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://rawkeepers.com/thanks.html">
+        <input type="hidden" name="_autoresponse" value="Thanks for joining the RAW Keepers beta — welcome aboard! Download the Windows beta here: https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.22.6/RAWKeepers-beta-win64.zip  —  Unzip and run RAWKeepers.exe (if Windows shows 'protected your PC', click More info then Run anyway). It reads Olympus, Sony, Canon, Fujifilm, Panasonic, Leica/DNG and lossless Nikon NEF, plus JPG — all on-device, so your photos never leave your computer. The beta expires July 29, 2026. We'd love your feedback — just reply to this email. — The RAW Keepers team, rawkeepers.com">
         <div class="beta-q">I'd like to beta-test because I'm a…</div>
         <div class="beta-opts">
           <label><input type="radio" name="I am a" value="Professional Photographer" required> Professional Photographer</label>
@@ -443,20 +448,7 @@
 <script>(function(){var f=document.getElementById('beta-form');if(!f)return;
 var other=document.getElementById('beta-other');
 f.addEventListener('change',function(e){if(e.target.name==='I am a'&&other){var o=(e.target.value==='Other');other.style.display=o?'block':'none';if(o)other.focus();}});
-f.addEventListener('submit',function(e){e.preventDefault();
-  var m=document.getElementById('beta-msg');var i=f.querySelector('input[type=email]');
-  var em=i?(i.value||'').trim():'';if(!em)return;
-  if(m){m.style.color='';m.textContent='Sending…';}
-  var data=new FormData(f);
-  data.append('_subject','New RAW Keepers beta signup');
-  data.append('_template','table');
-  data.append('_captcha','false');
-  data.append('_autoresponse',"Thanks for joining the RAW Keepers beta — welcome aboard!\n\nDownload the Windows beta here:\nhttps://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.22.6/RAWKeepers-beta-win64.zip\n\nQuick start:\n1) Unzip it anywhere, then run RAWKeepers.exe.\n2) If Windows shows 'Windows protected your PC', click 'More info' then 'Run anyway' (this beta isn't code-signed yet).\n3) No install needed — it's a self-contained folder; delete the folder to remove it.\n\nIt reads RAW from Olympus, Sony, Canon, Fujifilm, Panasonic, Leica/DNG and Nikon (lossless), plus JPG — all on-device, so your photos never leave your computer. The beta expires July 29, 2026.\n\nWe'd love your feedback: just reply to this email with anything confusing, broken, or great — and which camera and RAW format you tried.\n\n— The RAW Keepers team\nrawkeepers.com");
-  fetch('https://formsubmit.co/ajax/5a2a1dd312681572024271fde90e43f4',{method:'POST',headers:{'Accept':'application/json'},body:data})
-    .then(function(r){return r.json();})
-    .then(function(){if(m)m.textContent="Thanks — you're on the beta list! We'll email you when your download is ready.";f.reset();if(other)other.style.display='none';})
-    .catch(function(){if(m){m.style.color='#ff9b6b';m.textContent="Couldn't submit just now — please email support@rawkeepers.com and we'll add you.";}});
-});})();</script>
+})();</script>
 <script>document.querySelectorAll('.ba').forEach(function(b){var bef=b.querySelector('.before'),h=b.querySelector('.ba-handle');function s(p){p=Math.max(2,Math.min(98,p));bef.style.clipPath='inset(0 '+(100-p)+'% 0 0)';h.style.left=p+'%';}b.addEventListener('pointermove',function(e){var r=b.getBoundingClientRect();s((e.clientX-r.left)/r.width*100);});s(50);});</script>
 <script>(function(){
   var strip=document.getElementById('cullstrip'); if(!strip) return;

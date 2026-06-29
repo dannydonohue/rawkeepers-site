@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You're on the list — RAW Keepers beta</title>
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#070710;color:#eef0f6;
+       min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;line-height:1.6}
+  .card{max-width:560px;width:100%;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);
+        border-radius:20px;padding:38px 34px;text-align:center;box-shadow:0 18px 50px -18px rgba(0,0,0,.6)}
+  .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.09em;color:#eaad4e;
+         background:rgba(234,173,78,.12);border:1px solid rgba(234,173,78,.45);padding:3px 9px;border-radius:6px;margin-bottom:16px}
+  h1{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+  p{color:#b6bac8;font-size:15.5px;margin-bottom:14px}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:16px;padding:14px 26px;border-radius:14px;
+       background:linear-gradient(140deg,#f4c577,#e7a23c);color:#241704;margin:8px 0 6px;
+       box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 28px -8px rgba(234,173,78,.65)}
+  .steps{text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;
+         padding:16px 18px;margin:16px 0;font-size:14px;color:#cfd2dd}
+  .steps b{color:#fff}
+  .dim{color:#888da0;font-size:13px}
+  a.home{color:#eaad4e;font-size:14px;text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">BETA</div>
+    <h1>You're on the list! 🎉</h1>
+    <p>Thanks for joining the RAW Keepers beta. We've also emailed you this download link — but you can grab it right now:</p>
+    <a class="btn" href="https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.22.6/RAWKeepers-beta-win64.zip">⬇ Download RAW Keepers (Windows)</a>
+    <div class="steps">
+      <b>Quick start</b><br>
+      1) Unzip it anywhere, then run <b>RAWKeepers.exe</b>.<br>
+      2) If Windows shows "Windows protected your PC", click <b>More info → Run anyway</b> (this beta isn't code-signed yet).<br>
+      3) No install needed — it's a self-contained folder; delete it to remove.<br>
+      <span class="dim">Reads Olympus, Sony, Canon, Fujifilm, Panasonic, Leica/DNG, lossless Nikon NEF + JPG — all on-device. Beta expires July 29, 2026.</span>
+    </div>
+    <p class="dim">Found a bug or have feedback? Just reply to the welcome email.</p>
+    <a class="home" href="/">← Back to rawkeepers.com</a>
+  </div>
+</body>
+</html>
