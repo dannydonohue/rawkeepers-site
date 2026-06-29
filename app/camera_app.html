@@ -1,0 +1,251 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none;}
+  html,body{height:100%;color:#e8e8ee;overflow:hidden;background:radial-gradient(circle at 50% 30%,#1c1e22,#070809);}
+
+  /* camera body: matte, subtle texture, shaped (rounded) top, deeper bottom */
+  .cam{position:absolute;left:18px;right:18px;top:38px;bottom:16px;display:flex;flex-direction:column;
+    border-radius:46px 46px 26px 26px;
+    background-color:#202227;
+    background-image:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.018) 0.5px,transparent 1px),linear-gradient(180deg,#34373e 0%,#24262c 10%,#191b20 60%,#121317 100%);
+    background-size:4px 4px,100% 100%;
+    border:1px solid #050608;box-shadow:0 30px 70px rgba(0,0,0,0.78),inset 0 1px 0 rgba(255,255,255,0.13),inset 0 0 0 2px #2b2e35;}
+
+  /* central pentaprism hump (EVF) rising above the shoulders */
+  .hump{position:absolute;left:50%;top:-34px;transform:translateX(-50%);width:230px;height:174px;z-index:4;
+    border-radius:44px 44px 16px 16px;
+    background:linear-gradient(180deg,#3c3f47 0%,#26282e 55%,#191b20 100%);
+    border:1px solid #050608;box-shadow:0 -4px 14px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.16);
+    display:flex;flex-direction:column;align-items:center;padding:8px 0 9px;gap:7px;}
+  .shoe{width:60px;height:12px;border-radius:3px;background:linear-gradient(180deg,#2a2c31,#0d0e12);border:1px solid #3a3d44;box-shadow:inset 0 -2px 3px rgba(0,0,0,0.6);}
+  .eyecup{position:relative;width:192px;height:130px;border-radius:16px;border:1px solid #000;padding:11px;
+    background:radial-gradient(rgba(255,255,255,0.02) 0.5px,transparent 0.5px) 0 0/4px 4px,linear-gradient(180deg,#1b1c20,#0a0b0d);
+    box-shadow:0 6px 12px rgba(0,0,0,0.55),inset 0 1px 1px rgba(255,255,255,0.06),inset 0 -4px 8px rgba(0,0,0,0.7);}
+  .vf{position:relative;width:168px;height:108px;border-radius:5px;overflow:hidden;background:#04060a;box-shadow:inset 0 0 0 2px #000,inset 0 0 16px rgba(0,0,0,0.9);}
+  .humpbrand{font-size:11px;font-weight:700;letter-spacing:2.5px;color:#cbcdd3;}
+  .vf img{width:100%;height:100%;object-fit:cover;display:none;}
+  .vf .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;letter-spacing:1.5px;color:#454a52;}
+  .vf .tlbl{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:8px;background:rgba(0,0,0,0.6);display:none;color:#cdd0d8;}
+  .vf .tlbl.edited{color:#7CFF9B;}
+
+  .deck{position:relative;height:142px;flex:none;}
+  .lbtns{position:absolute;left:30px;top:30px;display:flex;gap:14px;}
+  .cbtn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+  .cbtn .b{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#34373e,#15171b);border:1px solid #43464e;box-shadow:0 2px 4px rgba(0,0,0,0.5),inset 0 1px 1px rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:11px;color:#aeb2bb;}
+  .cbtn .t{font-size:8px;letter-spacing:.5px;color:#878b94;}
+  .cmddial{position:absolute;right:30px;top:24px;width:46px;height:46px;border-radius:50%;
+    background:repeating-conic-gradient(from 0deg,#2e3037 0 6deg,#181a1e 6deg 12deg);border:1px solid #050608;box-shadow:0 4px 8px rgba(0,0,0,0.55),inset 0 1px 1px rgba(255,255,255,0.14);}
+  .cmddial::after{content:"";position:absolute;inset:11px;border-radius:50%;background:radial-gradient(circle at 40% 34%,#3c3f47,#16171c);}
+
+  .body{flex:1;display:flex;min-height:0;padding:4px 16px 12px;gap:14px;}
+  /* LCD: inset screen with a metal bezel sitting in the leather body */
+  .lcdframe{flex:1;border-radius:7px;padding:6px;position:relative;background:#070809;border:1px solid #000;
+    box-shadow:inset 0 0 0 3px #2b2e34,0 5px 12px rgba(0,0,0,0.6);}
+  .lcd{position:relative;height:100%;border-radius:3px;overflow:auto;display:flex;flex-direction:column;
+    background:linear-gradient(180deg,#141923,#0c1016);box-shadow:inset 0 1px 12px rgba(0,0,0,0.7);}
+  .lcd::-webkit-scrollbar{width:0;}
+  .statusbar{display:flex;align-items:center;gap:8px;padding:7px 11px;background:rgba(0,0,0,0.32);border-bottom:1px solid rgba(255,255,255,0.06);flex:none;}
+  .mode{font-size:10px;font-weight:700;letter-spacing:1.5px;color:#1a0d03;background:#ff9a3c;border-radius:3px;padding:2px 7px;}
+  .ttl{font-size:11px;color:#cdd0d8;} .statusbar .sp{flex:1;} .statusbar .it{font-size:10px;color:#aeb2bb;}
+  .bat{width:22px;height:11px;border:1px solid #9aa0aa;border-radius:2px;position:relative;}
+  .bat::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:#9aa0aa;}
+  .bat i{position:absolute;inset:1.5px;width:70%;background:#7CFF9B;border-radius:1px;}
+  .scr{padding:11px 14px;flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .sec{font-size:9.5px;letter-spacing:1.6px;color:#ff9a3c;margin:2px 0 9px;}
+  .row{display:flex;align-items:center;gap:10px;padding:9px 11px;margin-bottom:8px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;}
+  .row .ic{width:18px;text-align:center;color:#ff9a3c;font-size:13px;}
+  .row .k{font-size:10px;letter-spacing:1px;color:#cdd0d8;width:34px;}
+  .row .v{flex:1;font-size:11px;color:#80848e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .frow2{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .choose{flex:none;font-size:10px;letter-spacing:.5px;color:#ffb066;background:linear-gradient(180deg,#242832,#171a21);border:1px solid #3a3f4a;border-radius:6px;padding:8px 13px;cursor:pointer;}
+  .frow2 .k{font-size:10px;letter-spacing:1px;color:#9fa3ac;width:28px;flex:none;}
+  .pathv{flex:1;font-size:11px;color:#80848e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pathv.set{color:#cdd0d8;}
+  .softbtns{display:flex;gap:8px;margin:10px 0;}
+  .soft{flex:1;text-align:center;border-radius:6px;padding:11px;font-size:11px;cursor:pointer;background:linear-gradient(180deg,#242832,#171a21);border:1px solid #3a3f4a;color:#d6d9e0;}
+  .soft b{display:block;color:#ffb066;font-size:11px;margin-bottom:1px;}
+  .soft.disabled{opacity:.45;pointer-events:none;}
+  .planbar{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:9.5px;color:#9a9ea8;background:rgba(255,154,60,.08);border:1px solid rgba(255,154,60,.28);border-radius:6px;padding:5px 10px;margin:0 0 9px;}
+  .planbar b{color:#ff9a3c;}
+  .planbar .up{color:#0e0f12;background:#ff9a3c;border-radius:999px;padding:2px 10px;font-weight:700;cursor:pointer;letter-spacing:.3px;}
+  .soft.locked{background:linear-gradient(180deg,#1b1e25,#131013);border-color:#44413a;color:#7c808a;position:relative;}
+  .soft.locked b{color:#9a8c6e;}
+  .soft.locked .lock{display:block;color:#ff9a3c;font-size:9px;margin-top:2px;font-weight:600;}
+  .pbar{height:8px;background:#0c0f15;border:1px solid #23262e;border-radius:4px;overflow:hidden;margin:8px 0 4px;}
+  .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9a3c,#e8631a);transition:width .25s;}
+  .status{font-size:10px;color:#8a8f99;min-height:13px;}
+  .disc{font-size:10px;color:#9aa0aa;cursor:pointer;margin:4px 0;} .disc .dim{color:#6f7682;}
+  .settings{max-height:0;overflow:hidden;transition:max-height .25s;} .settings.open{max-height:320px;}
+  .srow{display:flex;align-items:center;gap:9px;margin:9px 0;font-size:11px;color:#c4c7cf;}
+  .track{position:relative;height:16px;border-radius:8px;background:#0c0f15;border:1px solid #23262e;flex:1;cursor:pointer;}
+  .track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:linear-gradient(90deg,#ff9a3c,#e8631a);}
+  .track .kb{position:absolute;top:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:#e9e9ef;box-shadow:0 1px 3px rgba(0,0,0,.6);}
+  .opt{display:flex;align-items:center;gap:9px;margin-top:8px;cursor:pointer;font-size:11px;color:#c4c7cf;}
+  .sw{position:relative;width:32px;height:18px;border-radius:999px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.15);flex:none;}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#e9e9ef;transition:left .15s;}
+  .opt.on .sw{background:linear-gradient(180deg,#ff9a3c,#e1601a);} .opt.on .sw::after{left:16px;}
+  .infostrip{display:flex;gap:12px;padding:8px 12px;background:rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.06);flex:none;}
+  .meter{flex:1;} .mtop{display:flex;justify-content:space-between;font-size:9px;color:#80848e;margin-bottom:3px;}
+  .mbar{height:6px;background:#0c0f15;border-radius:3px;overflow:hidden;} .mbar i{display:block;height:100%;width:0;transition:width .4s;}
+  .blogo{height:10px;display:none;vertical-align:-1px;}
+  .specs{font-size:9px;color:#5d626c;padding:5px 12px 9px;line-height:1.5;flex:none;}
+
+  /* right controls + leather grip */
+  .rear{width:280px;flex:none;position:relative;display:flex;flex-direction:column;align-items:center;padding:6px 64px 0 6px;}
+  .grip{position:absolute;right:6px;top:0;bottom:8px;width:54px;border-radius:10px 16px 16px 10px;
+    background-color:#141519;background-image:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.05) 0.8px,transparent 1.3px),radial-gradient(circle at 70% 60%,rgba(0,0,0,0.45) 1px,transparent 1.5px);background-size:5px 5px,6px 6px;
+    box-shadow:inset 2px 0 5px rgba(0,0,0,0.5),inset 0 0 0 1px rgba(0,0,0,0.5);}
+  .knob{position:relative;width:94px;height:94px;margin-top:4px;}
+  .knob-dial{position:absolute;inset:0;border-radius:50%;cursor:grab;touch-action:none;
+    background:radial-gradient(circle at 48% 36%,#4c4f59 0%,#2b2d35 40%,#16171c 66%,#0c0d11 100%);border:1px solid #08090c;
+    box-shadow:0 11px 20px rgba(0,0,0,0.62),inset 0 2px 3px rgba(255,255,255,0.20),inset 0 -11px 18px rgba(0,0,0,0.72);
+    transition:transform .2s cubic-bezier(.2,.85,.3,1.25);}
+  .knob-dial:active{cursor:grabbing;}
+  .knob-dial::before{content:"";position:absolute;inset:0;border-radius:50%;
+    background:repeating-conic-gradient(from 0deg,rgba(255,255,255,0.06) 0 1.6deg,rgba(0,0,0,0.22) 1.6deg 3.4deg);
+    -webkit-mask:radial-gradient(circle,transparent 58%,#000 61%);mask:radial-gradient(circle,transparent 58%,#000 61%);}
+  .knob-ptr{position:absolute;top:6px;left:50%;width:5px;height:30px;margin-left:-2.5px;border-radius:3px;z-index:3;
+    background:linear-gradient(180deg,#fff,#ff8a2a);box-shadow:0 0 12px rgba(255,140,40,0.95);}
+  .tick{position:absolute;top:50%;left:50%;width:2px;height:13px;margin:-6.5px -1px;border-radius:1px;background:#969aa3;}
+  .tick.on{background:#ff9a3c;box-shadow:0 0 9px rgba(255,150,50,0.95);height:15px;margin:-7.5px -1px;width:3px;margin-left:-1.5px;}
+  .dcap{font-size:8.5px;letter-spacing:1.4px;color:#86879a;margin-top:14px;} .dval{font-size:13px;font-weight:700;color:#ffd9bd;margin-top:2px;transition:transform .15s;} .dval.pop{transform:scale(1.18);}
+  /* large CULL/EDIT buttons, top-left of the viewfinder */
+  .deckbtns{position:absolute;left:28px;top:30px;display:flex;gap:12px;z-index:5;}
+  .bigbtn{min-width:60px;padding:12px 4px;border-radius:9px;text-align:center;font-size:11px;font-weight:600;letter-spacing:1.5px;color:#cdd0d8;cursor:pointer;
+    background:linear-gradient(180deg,#2c2f35,#16181c);border:1px solid #3c4049;box-shadow:0 2px 5px rgba(0,0,0,0.5),inset 0 1px 1px rgba(255,255,255,0.1);}
+  .bigbtn.on{color:#ff9a3c;border-color:#ff9a3c;box-shadow:0 0 12px rgba(255,150,50,0.5),inset 0 1px 1px rgba(255,255,255,0.1);}
+  /* HDR / Sport TOGGLE SWITCHES under the knob (larger, slider style) */
+  .toggles2{display:flex;flex-direction:column;gap:15px;margin-top:18px;width:176px;}
+  .tgl{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-size:12px;color:#c4c7cf;}
+  .tgl .sw2{position:relative;width:52px;height:28px;border-radius:999px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.16);flex:none;transition:background .15s;}
+  .tgl .sw2::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#e9e9ef;box-shadow:0 1px 3px rgba(0,0,0,0.5);transition:left .15s;}
+  .tgl.on{color:#ffd9bd;}
+  .tgl.on .sw2{background:linear-gradient(180deg,#ff9a3c,#e1601a);border-color:rgba(255,255,255,0.35);}
+  .tgl.on .sw2::after{left:26px;}
+  .fnrow{display:flex;gap:18px;margin-top:14px;}
+  .fbtn{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
+  .fbtn .b{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#2e313a,#141519);border:1px solid #3a3e48;box-shadow:0 3px 6px rgba(0,0,0,0.5),inset 0 1px 1px rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:13px;color:#aeb2bb;}
+  .fbtn .t{font-size:8.5px;letter-spacing:1px;color:#9a9ea8;}
+  .fbtn.on .b{border-color:#ff9a3c;color:#ff9a3c;box-shadow:0 0 10px rgba(255,150,50,0.55),inset 0 1px 1px rgba(255,255,255,0.12);} .fbtn.on .t{color:#ff9a3c;}
+  .tabs{display:flex;gap:12px;margin-top:16px;}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+  .tab .b{width:34px;height:34px;border-radius:8px;background:radial-gradient(circle at 38% 32%,#2a2d35,#141519);border:1px solid #383c45;display:flex;align-items:center;justify-content:center;font-size:13px;color:#9a9ea8;}
+  .tab .t{font-size:8px;letter-spacing:.5px;color:#878b94;}
+  .tab.on .b{border-color:#ff9a3c;color:#ff9a3c;box-shadow:0 0 10px rgba(255,150,50,0.5);} .tab.on .t{color:#ff9a3c;}
+
+  .footer{flex:none;height:28px;position:relative;display:flex;align-items:center;padding:0 24px;}
+  .tagline{position:absolute;left:50%;transform:translateX(-50%);font-size:10.5px;font-style:italic;color:#8a8f99;letter-spacing:.5px;}
+  .nm{font-size:11px;font-weight:700;letter-spacing:1.5px;color:#cfd0d8;}
+  .skinbtn{margin-left:auto;font-size:10px;color:#cfd0d8;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.18);border-radius:999px;padding:4px 11px;cursor:pointer;z-index:5;}
+  .led{position:absolute;right:18px;top:14px;width:6px;height:6px;border-radius:50%;background:#7CFF9B;box-shadow:0 0 7px rgba(124,255,155,0.9);z-index:5;}
+
+  .tip{position:fixed;z-index:50;max-width:258px;background:rgba(20,21,28,0.97);border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:8px 11px;font-size:11.5px;line-height:1.45;color:#e8e8ee;box-shadow:0 10px 30px rgba(0,0,0,0.55);opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s;pointer-events:none;}
+  .tip.show{opacity:1;transform:translateY(0);}
+  .modal{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(3,2,6,0.6);}
+  .modal.show{display:flex;}
+  .sheet{width:420px;background:#16181f;border:1px solid rgba(255,255,255,0.16);border-radius:16px;padding:20px 22px;}
+  .sheet h2{font-size:15px;margin-bottom:10px;font-weight:600;}
+  .sheet .line{font-size:13px;color:#d4d5dd;margin:4px 0;display:flex;justify-content:space-between;}
+  .sheet .warn{color:#ff9b6b;font-size:12px;margin-top:8px;}
+  .sheet .acts{display:flex;gap:12px;margin-top:16px;justify-content:flex-end;}
+  .sheet .acts .btn{font-size:13px;padding:7px 16px;border-radius:8px;border:1px solid #3a3e48;cursor:pointer;}
+  .sheet .acts .btn.primary{background:#e8631a;border-color:#e8631a;}
+</style></head>
+<body>
+  <div class="cam">
+    <div class="hump">
+      <div class="shoe"></div>
+      <div class="eyecup"><div class="vf"><span class="ph" id="thumb_ph">no image</span><img id="thumb_img"><div class="tlbl" id="thumb_lbl"></div></div></div>
+      <div class="humpbrand">RAW KEEPERS</div>
+    </div>
+    <div class="deck">
+      <div class="deckbtns">
+        <div class="bigbtn on" id="tab_cull" onclick="showPage('cull')">CULL</div>
+        <div class="bigbtn" id="tab_edit" onclick="showPage('edit')">EDIT</div>
+      </div>
+      <div class="cmddial"></div>
+    </div>
+
+    <div class="body">
+      <div class="lcdframe">
+        <div class="lcd">
+          <div class="statusbar"><span class="mode" id="modebadge">CULL</span><span class="ttl">AI culling + editing</span><span class="sp"></span><span class="it" id="kcount">— / —</span><span class="it">SD</span><span class="bat"><i></i></span></div>
+          <div class="scr">
+            <div id="page_cull">
+              <div class="sec">CULL · FIND THE KEEPERS</div>
+              <div class="planbar" id="planbar"><span><b>Free</b> version — JPG keepers</span><span class="up" onclick="upgrade()">Upgrade to Pro →</span></div>
+              <div class="frow2"><div class="choose" onclick="pick('cull_src')">Choose…</div><span class="k">SRC</span><span class="pathv" id="cull_src">Original photos folder</span></div>
+              <div class="frow2"><div class="choose" onclick="pick('cull_dst')">Choose…</div><span class="k">OUT</span><span class="pathv" id="cull_dst">Where to save the keepers</span></div>
+              <div class="softbtns">
+                <div class="soft" id="b_jpg" onclick="run('jpg')"><b>Find Keepers</b>save to JPG</div>
+                <div class="soft locked" id="b_raw" onclick="upgrade()"><b>Find Keepers · RAW</b><span class="lock">🔒 Pro · $5.49/mo</span></div>
+              </div>
+              <div class="pbar"><i id="pbar_cull"></i></div>
+              <div class="status" id="status_cull">Free: cull + save as JPG (1–2 MB). Pro saves untouched RAW / .DNG.</div>
+            </div>
+            <div id="page_edit" style="display:none">
+              <div class="sec">EDIT &amp; FINISH</div>
+              <div class="planbar" id="planbar_edit"><span><b>Free</b> version — web JPG</span><span class="up" onclick="upgrade()">Upgrade to Pro →</span></div>
+              <div class="frow2"><div class="choose" onclick="pick('edit_src')">Choose…</div><span class="k">SRC</span><span class="pathv" id="edit_src">Photos to edit</span></div>
+              <div class="frow2"><div class="choose" onclick="pick('edit_dst')">Choose…</div><span class="k">OUT</span><span class="pathv" id="edit_dst">Where to save edited results</span></div>
+              <div class="disc" id="disc" onclick="toggleSettings()">▸ Edit settings <span class="dim">— denoise, retouch, options</span></div>
+              <div class="settings" id="settings">
+                <div class="srow"><span style="width:52px">Denoise</span><div class="track" id="t_denoise"><div class="fill"></div><div class="kb"></div></div><span id="p_denoise" style="width:22px;text-align:right">35</span></div>
+                <div class="srow"><span style="width:52px">Retouch</span><div class="track" id="t_retouch"><div class="fill"></div><div class="kb"></div></div><span id="p_retouch" style="width:22px;text-align:right">70</span></div>
+                <div class="opt on" id="o_cull" onclick="tog('cull')"><div class="sw"></div>Cull first — best shots only</div>
+                <div class="opt on" id="o_straighten" onclick="tog('straighten')"><div class="sw"></div>Straighten horizon</div>
+                <div class="opt" id="o_vupright" onclick="tog('vupright')"><div class="sw"></div>Vertical upright (experimental)</div>
+                <div class="opt on" id="o_autolight" onclick="tog('autolight')"><div class="sw"></div>Auto light &amp; colour</div>
+              </div>
+              <div class="softbtns">
+                <div class="soft" id="b_edit" onclick="run('edit')"><b>Edit All</b>Phone JPG</div>
+                <div class="soft locked" id="b_edit_pro" onclick="upgrade()"><b>Edit All · Print + RAW</b><span class="lock">🔒 Pro · $5.49/mo</span></div>
+                <div class="soft" id="b_cancel" onclick="cancelRun()" style="display:none">Cancel</div>
+              </div>
+              <div class="pbar"><i id="pbar_edit"></i></div>
+              <div class="status" id="status_edit">Free: edit + save phone JPGs (~2048px). Pro adds full-res print + 16-bit RAW + HDR.</div>
+            </div>
+          </div>
+          <div class="infostrip">
+            <div class="meter"><div class="mtop"><span><img class="blogo" id="cpu_logo"><span id="cpu_lbl">CPU</span></span><span id="v_cpu">0%</span></div><div class="mbar"><i id="m_cpu" style="background:#0A84FF"></i></div></div>
+            <div class="meter"><div class="mtop"><span id="ram_lbl">RAM</span><span id="v_ram">0%</span></div><div class="mbar"><i id="m_ram" style="background:#FF9F0A"></i></div></div>
+            <div class="meter"><div class="mtop"><span><img class="blogo" id="gpu_logo"><span id="gpu_lbl">GPU</span></span><span id="v_gpu">0%</span></div><div class="mbar"><i id="m_gpu" style="background:#34C759"></i></div></div>
+          </div>
+          <div class="specs" id="specs"></div>
+        </div>
+      </div>
+
+      <div class="rear">
+        <div class="led"></div>
+        <div class="knob" id="knob"><div class="knob-dial" id="knob_dial"><span class="knob-ptr"></span></div></div>
+        <div class="dcap">CULL AMOUNT</div><div class="dval" id="knob_lbl">balanced</div>
+        <div class="toggles2">
+          <div class="tgl" id="o_hdr" onclick="tog('hdr')" data-tip="Merge HDR exposure brackets — combines a 3-shot bracket into one image. Off = pure culling."><span>Merge HDR</span><div class="sw2"></div></div>
+          <div class="tgl" id="o_sport" onclick="tog('sport')" data-tip="Sports mode — for game/arena shots. CULLS to the frame with the ball in the action and a faster shutter (ignores looking-at-camera), and EDITS every shot for sports: keeps the highlight on the floodlit court and the crowd dark (no global over-brighten), levels a crooked court/horizon, adds pop without lifting the stands."><span>Sports mode</span><div class="sw2"></div></div>
+          <div class="tgl" id="o_enhance" onclick="tog('enhance')" data-tip="Enhance (Edit) — optional beautification on top of the normal edit: fixes/deepens the sky (green-cyan cast, blown-sky recovery, bluer) AND boosts the sparkle (catchlight) in the eyes. Off by default; skin tone and exposure are unchanged."><span>Enhance</span><div class="sw2"></div></div>
+          <div class="tgl" id="o_stage" onclick="tog('stage')" data-tip="Concert / Stage — turn ON only for live-music / stage / concert shots. Preserves the dark moody look (singer stays bright, audience stays dark), tames the spotlight so the face isn't blown, lifts colour with vibrance, adds a subtle vignette. Leave OFF for everything else — a candlelit dinner is NOT a concert (lighting alone can't tell them apart, so this is a manual tag)."><span>Concert / Stage</span><div class="sw2"></div></div>
+        </div>
+        <div class="grip"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nm">Z·CULL</div>
+      <div class="tagline">On-device AI · culling + editing</div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal"><div class="sheet">
+    <h2 id="m_title">Proceed?</h2><div id="m_body"></div>
+    <div class="acts"><div class="btn" onclick="closeModal()">Cancel</div><div class="btn primary" id="m_go">Proceed</div></div>
+  </div></div>
+  <script src="app.js"></script>
+  <script>
+    function showPage(p){var c=p==='cull';
+      try{sndClick()}catch(e){}
+      document.getElementById('page_cull').style.display=c?'block':'none';
+      document.getElementById('page_edit').style.display=c?'none':'block';
+      document.getElementById('modebadge').textContent=c?'CULL':'EDIT';
+      document.getElementById('tab_cull').classList.toggle('on',c);
+      document.getElementById('tab_edit').classList.toggle('on',!c);}
+  </script>
+</body></html>

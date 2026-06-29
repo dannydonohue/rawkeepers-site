@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAW Keepers — AI photo culling & editing, on your computer</title>
+<link rel="icon" type="image/png" href="logo.png">
+<meta name="description" content="RAW Keepers is private, on-device AI that culls and edits your whole shoot right on your own computer — it finds your sharpest, best-exposed, eyes-open keepers, then you edit them anywhere. No uploads, no cloud.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#eaad4e; --accent2:#f4c577; --keep:#34d39a; --maxw:1140px;
+    --txt:#eef0f6; --txt2:#b6bac8; --txt3:#888da0;
+    --glass:rgba(255,255,255,.055); --glass-h:rgba(255,255,255,.085);
+    --bdr:rgba(255,255,255,.12); --bdr2:rgba(255,255,255,.2);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--txt);background:#070710;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;position:relative;z-index:2}
+
+  .orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .orb{position:absolute;border-radius:50%;filter:blur(100px)}
+  .orb.a{width:640px;height:640px;background:#eaad4e;top:-180px;left:-140px;opacity:.30}
+  .orb.b{width:560px;height:560px;background:#7b5cff;top:34%;right:-160px;opacity:.26}
+  .orb.c{width:600px;height:600px;background:#1fa890;bottom:6%;left:8%;opacity:.20}
+  .orb.d{width:520px;height:520px;background:#e0643c;bottom:-200px;right:14%;opacity:.18}
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;background:linear-gradient(180deg,rgba(7,7,16,.2),rgba(7,7,16,.86))}
+
+  .ic{width:1em;height:1em;display:inline-block;vertical-align:-.13em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .glass{background:var(--glass);backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);border:1px solid var(--bdr);box-shadow:0 18px 50px -18px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.16)}
+  .eyebrow{font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:clamp(35px,5.6vw,62px);line-height:1.04;font-weight:800;letter-spacing:-.025em;margin:18px 0 0}
+  h1 .hl{color:var(--accent)}
+  h2{font-size:clamp(28px,3.7vw,42px);line-height:1.08;font-weight:800;letter-spacing:-.02em;margin:12px 0 14px}
+  .lede{font-size:clamp(17px,2.1vw,20px);color:var(--txt2);max-width:620px;margin:22px 0 30px;line-height:1.6}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:13px 22px;border-radius:14px;border:1px solid transparent;cursor:pointer;transition:transform .14s ease,box-shadow .2s,background .2s}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:linear-gradient(140deg,#f4c577,#e7a23c);color:#241704;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 28px -8px rgba(234,173,78,.65)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 14px 34px -8px rgba(234,173,78,.8)}
+  .btn-glass{background:var(--glass-h);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);color:#fff;border-color:var(--bdr2);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+  .btn-glass:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+
+  nav{position:sticky;top:14px;z-index:30;margin:14px auto 0;max-width:var(--maxw);padding:0 24px}
+  .navbar{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 12px 0 18px;border-radius:18px}
+  .brand{display:flex;align-items:center;gap:9px;color:#fff;font-weight:700;font-size:18px;letter-spacing:-.01em}
+  .brand .mk{width:28px;height:28px;border-radius:8px;display:block;object-fit:contain}
+  .brand .beta{font-size:10px;font-weight:700;letter-spacing:.09em;color:var(--accent);background:rgba(234,173,78,.12);border:1px solid rgba(234,173,78,.45);padding:2px 6px;border-radius:6px;line-height:1;transform:translateY(-1px);margin-left:-3px}
+  .beta-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0 12px}
+  .beta-form input{flex:1 1 280px;max-width:360px;padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:15px;outline:none}
+  .beta-form input::placeholder{color:var(--txt3)}
+  .beta-form input:focus{border-color:var(--accent)}
+  .beta-msg{color:var(--keep);font-weight:600;margin:2px 0 12px;min-height:1px}
+  .navlinks{display:flex;gap:28px;color:var(--txt2);font-size:15px;font-weight:500}
+  .navlinks a:hover{color:#fff}
+  .nav-cta{color:#241704;background:linear-gradient(140deg,#f4c577,#e7a23c);padding:9px 17px;border-radius:11px;font-weight:600;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+
+  header.hero{padding:74px 0 70px}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+  .microcopy{margin-top:16px;font-size:13.5px;color:var(--txt3);display:flex;align-items:center;gap:7px}
+  .microcopy .ic{font-size:16px;color:var(--keep)}
+
+  .shot{margin-top:56px}
+  .win{border-radius:22px;overflow:hidden}
+  .win-bar{display:flex;align-items:center;gap:8px;padding:13px 16px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--bdr)}
+  .dot{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.22)}
+  .win-title{margin-left:8px;font-size:13px;color:var(--txt2);font-weight:600}
+  .win-body{padding:22px}
+  .win-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  .folder{font-size:13.5px;color:var(--txt2);display:flex;align-items:center;gap:7px}
+  .folder .ic{font-size:16px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{font-size:12px;color:var(--txt2);background:rgba(255,255,255,.07);padding:4px 11px;border-radius:8px;border:1px solid var(--bdr)}
+  .chip.on{background:rgba(234,173,78,.2);color:var(--accent2);border-color:rgba(234,173,78,.35)}
+  .strip{display:grid;grid-template-columns:repeat(8,1fr);gap:9px;margin-bottom:18px}
+  .fr{aspect-ratio:1;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);position:relative}
+  .fr.keep{background:rgba(52,211,154,.12);border:1.6px solid var(--keep)}
+  .fr.rej{opacity:.4}
+  .fr .ic{position:absolute;right:5px;bottom:4px;font-size:14px}
+  .fr.keep .ic{color:var(--keep)}
+  .fr.rej .ic{color:var(--txt3)}
+  .bar{display:flex;align-items:center;gap:13px}
+  .track{flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+  .track>div{width:34%;height:100%;background:linear-gradient(90deg,#34d39a,#1fa890)}
+  .pct{font-size:12.5px;color:var(--txt2);white-space:nowrap}
+  .cap{text-align:center;color:var(--txt3);font-size:12.5px;margin-top:14px}
+  .appframe{position:relative;width:100%;border-radius:20px;overflow:hidden}
+  .appframe iframe{width:1040px;height:706px;border:0;display:block;transform-origin:0 0;pointer-events:none}
+
+  section{padding:64px 0}
+  .sec-head{max-width:680px;margin-bottom:46px}
+  .sec-head p{color:var(--txt2);font-size:18px}
+
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .card{border-radius:20px;padding:28px;transition:transform .18s ease,background .2s}
+  .card:hover{transform:translateY(-3px);background:var(--glass-h)}
+  .card h3{font-size:18px;font-weight:600;margin:14px 0 7px;color:#fff}
+  .card p{color:var(--txt2);font-size:15px}
+  .icon-chip{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;color:var(--accent);background:rgba(234,173,78,.14);border:1px solid rgba(234,173,78,.22)}
+  .icon-chip .ic{font-size:24px}
+  .pill-ic .ic{font-size:25px;color:var(--accent)}
+
+  .step .n{width:36px;height:36px;border-radius:11px;background:linear-gradient(140deg,#f4c577,#e7a23c);color:#241704;display:grid;place-items:center;font-weight:700;font-size:15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+  .step .free{color:var(--keep);font-weight:600}
+  .step .pro{color:var(--accent2);font-weight:600}
+
+  .callout{text-align:center}
+  .callout .panel{border-radius:26px;padding:60px 32px;max-width:880px;margin:0 auto}
+  .callout p{color:var(--txt2);font-size:19px;margin-top:8px;max-width:640px;margin-left:auto;margin-right:auto}
+
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
+  .tier{display:flex;flex-direction:column;border-radius:22px;padding:30px}
+  .tier.feat-tier{border:1px solid rgba(234,173,78,.5);box-shadow:0 20px 60px -20px rgba(234,173,78,.4),inset 0 1px 0 rgba(255,255,255,.2);position:relative}
+  .tier .tag{position:absolute;top:-13px;left:30px;background:linear-gradient(140deg,#f4c577,#e7a23c);color:#241704;font-size:12px;font-weight:700;padding:4px 12px;border-radius:9px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+  .tname{font-size:17px;font-weight:600;display:flex;align-items:center;gap:8px;color:#fff}
+  .tname .ic{font-size:19px;color:var(--accent)}
+  .price{font-size:35px;font-weight:800;letter-spacing:-.02em;margin:14px 0 2px;color:#fff}
+  .price span{font-size:15px;font-weight:500;color:var(--txt2)}
+  .tsub{color:var(--txt2);font-size:13.5px;margin-bottom:20px}
+  .tier ul{list-style:none;display:flex;flex-direction:column;gap:11px;font-size:14.5px;flex:1;border-top:1px solid var(--bdr);padding-top:20px;margin-bottom:22px}
+  .tier li{display:flex;gap:9px;align-items:flex-start;color:var(--txt)}
+  .tier li .ic{color:var(--keep);font-size:17px;margin-top:2px;flex:none}
+  .tier li.no{color:var(--txt3)}
+  .tier li.no .ic{color:var(--txt3)}
+
+  .dl{text-align:center}
+  .dl .panel{border-radius:26px;padding:64px 32px;max-width:820px;margin:0 auto}
+  .dl p{color:var(--txt2);font-size:18px;margin:10px auto 28px;max-width:560px}
+  .dl .hero-cta{justify-content:center}
+  .req{margin-top:18px;color:var(--txt3);font-size:13.5px}
+
+  footer{padding:48px 0 56px;margin-top:24px}
+  footer .fwrap{border-radius:22px;padding:30px 32px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  footer a:hover{color:#fff}
+  footer .fbrand{color:#fff;font-size:16px;font-weight:600;margin-bottom:8px}
+  .foot-links{display:flex;gap:26px;flex-wrap:wrap;color:var(--txt2)}
+  .copy{color:var(--txt3);font-size:13px;margin-top:22px;text-align:center}
+
+  .gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .gallery img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-radius:14px;border:1px solid var(--bdr);transition:transform .35s ease;box-shadow:0 12px 30px -14px rgba(0,0,0,.6)}
+  .gallery img:hover{transform:scale(1.015)}
+  .bagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px}
+  .ba{position:relative;aspect-ratio:3/2;border-radius:16px;overflow:hidden;border:1px solid var(--bdr);box-shadow:0 14px 36px -16px rgba(0,0,0,.6);touch-action:none;cursor:ew-resize}
+  .ba-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+  .ba-img.before{clip-path:inset(0 50% 0 0)}
+  .ba-handle{position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;background:rgba(255,255,255,.85);pointer-events:none}
+  .ba-handle:after{content:"";position:absolute;top:50%;left:50%;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 2px 10px rgba(0,0,0,.55)}
+  .ba-tag{position:absolute;bottom:10px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:7px;background:rgba(8,8,16,.5);color:#fff;backdrop-filter:blur(6px);pointer-events:none}
+  .ba-tag.l{left:10px}.ba-tag.r{right:10px}
+  .ba-cat{position:absolute;top:10px;left:10px;font-size:11px;font-weight:600;letter-spacing:.04em;padding:4px 9px;border-radius:7px;background:rgba(8,8,16,.5);color:var(--accent2);backdrop-filter:blur(6px);pointer-events:none}
+  #cull-sim .cullstrip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:4px}
+  .cframe{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--bdr);aspect-ratio:3/2;background:#0c0c14;transition:transform .55s cubic-bezier(.2,.7,.2,1),filter .55s ease,opacity .55s ease,box-shadow .45s ease}
+  .cframe img{width:100%;height:100%;object-fit:cover;display:block}
+  .cscan{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(100deg,transparent 38%,rgba(234,173,78,.45) 50%,transparent 62%);transform:translateX(-100%)}
+  .cframe.scanning .cscan{animation:cscan .62s ease forwards}
+  @keyframes cscan{0%{transform:translateX(-100%);opacity:1}100%{transform:translateX(100%);opacity:0}}
+  .cbadge{position:absolute;left:7px;bottom:7px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 9px;border-radius:8px;background:rgba(8,8,16,.62);backdrop-filter:blur(6px);opacity:0;transform:translateY(7px);transition:opacity .35s ease,transform .35s ease;white-space:nowrap}
+  .cframe.revealed .cbadge{opacity:1;transform:none}
+  .cbadge .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .cframe.keep.revealed{box-shadow:0 0 0 2px var(--keep),0 16px 32px -14px rgba(0,0,0,.6);transform:translateY(-5px)}
+  .cframe.keep .cbadge{color:#9af0c4}.cframe.keep .dot{background:var(--keep)}
+  .cframe.drop.revealed{filter:grayscale(.85) brightness(.55);opacity:.5;transform:scale(.94)}
+  .cframe.drop .cbadge{color:#ffb0b0}.cframe.drop .dot{background:#ff6b6b}
+  .cull-replay{margin-left:10px;font:inherit;font-size:13px;font-weight:600;color:var(--accent);background:rgba(234,173,78,.13);border:1px solid var(--bdr);border-radius:999px;padding:4px 14px;cursor:pointer;transition:background .2s}
+  .cull-replay:hover{background:rgba(234,173,78,.24)}
+  .cullsum{margin-top:18px;text-align:center;color:var(--txt2);font-size:15.5px;opacity:0;transition:opacity .6s ease}
+  .cullsum strong{color:var(--txt);font-weight:700}.cullsum .kept-n{color:var(--keep)}
+  @media(max-width:680px){#cull-sim .cullstrip{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.gallery{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:820px){
+    .gallery{grid-template-columns:repeat(2,1fr)}
+    .navlinks{display:none}
+    .grid3,.tiers{grid-template-columns:1fr}
+    header.hero{padding:48px 0}
+  }
+</style>
+</head>
+<body>
+
+<div class="orbs"><span class="orb a"></span><span class="orb b"></span><span class="orb c"></span><span class="orb d"></span></div>
+<div class="grain"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-4.5"/></symbol>
+  <symbol id="i-desktop" viewBox="0 0 24 24"><path d="M3 5h18v11H3z"/><path d="M9 20h6M12 16v4"/></symbol>
+  <symbol id="i-stack" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><path d="M12 9.4a2.6 2.6 0 1 0 0 5.2 2.6 2.6 0 0 0 0-5.2z"/></symbol>
+  <symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 3.5s6 6 6 10.5a6 6 0 0 1-12 0c0-4.5 6-10.5 6-10.5z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 9-11h-6z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><path d="M12 10.3a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4z"/></symbol>
+  <symbol id="i-photo" viewBox="0 0 24 24"><path d="M3 5h18v14H3z"/><path d="M3 16l5-5 4 4 3-3 6 6"/><path d="M8.5 9.5a1.4 1.4 0 1 0 .01 0z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.9-4.2 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L3.6 9.7l5.8-.9z"/></symbol>
+  <symbol id="i-infinity" viewBox="0 0 24 24"><path d="M5 12c0-1.7 1.3-3 3-3 2.4 0 3 3 4 3s1.6-3 4-3c1.7 0 3 1.3 3 3s-1.3 3-3 3c-2.4 0-3-3-4-3s-1.6 3-4 3c-1.7 0-3-1.3-3-3z"/></symbol>
+</svg>
+
+<nav><div class="navbar glass">
+  <a class="brand" href="#top"><img class="mk" src="logo.png" alt="RAW Keepers logo"> RAW Keepers<span class="beta">BETA</span></a>
+  <div class="navlinks"><a href="#how">How it works</a><a href="#features">Features</a><a href="#pricing">Pricing</a></div>
+  <a class="nav-cta" href="#download">Join the beta</a>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">AI-powered · On-device · Mac &amp; Windows</div>
+    <h1>You shot 2,000 frames.<br>Let's find the <span class="hl">50 that matter.</span></h1>
+    <p class="lede">RAW Keepers' AI culls your whole shoot right on your own machine — sharp from soft, keeper from blink — then hands you the best, ready to edit anywhere. The AI runs on your computer: no uploads, no cloud.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#download">Join the beta</a>
+      <a class="btn btn-glass" href="#how">How it works</a>
+    </div>
+    <div class="microcopy"><svg class="ic"><use href="#i-shield"/></svg>On-device AI · no account · your photos never leave your computer</div>
+
+    <div class="shot">
+      <div class="appframe glass" id="appshot">
+        <iframe src="app/camera_app.html" title="The RAW Keepers app" scrolling="no"></iframe>
+      </div>
+      <div class="cap">the actual RAW Keepers app</div>
+    </div>
+  </div>
+</header>
+
+<section id="pillars">
+  <div class="wrap">
+    <div class="grid3">
+      <div class="card glass"><span class="pill-ic"><svg class="ic"><use href="#i-desktop"/></svg></span><h3>Private, on-device AI</h3><p>The AI runs on your machine — no uploads, no cloud, works offline. Your RAWs never leave your computer; that's not a setting, it's how it's built.</p></div>
+      <div class="card glass"><span class="pill-ic"><svg class="ic"><use href="#i-stack"/></svg></span><h3>AI finds the keepers</h3><p>Feed it the whole card; the AI sorts sharp from soft, keeper from blink. The fast batch pass before your editor — not another editor.</p></div>
+      <div class="card glass"><span class="pill-ic"><svg class="ic"><use href="#i-arrow"/></svg></span><h3>Cull here, edit anywhere</h3><p>Hand the best frames to Lightroom, Capture One — whatever you love. Or let the AI auto-edit them. Your call, every shoot.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">How it works</div>
+      <h2>Card to keepers in three steps.</h2>
+      <p>The boring half of photography, handled — usually before your coffee's cold.</p>
+    </div>
+    <div class="grid3">
+      <div class="card glass step"><div class="n">1</div><h3>Point it at your shoot</h3><p>Drop in a folder of RAW files — Nikon NEF, Leica DNG, the formats you actually shoot. Originals are never touched; it only ever copies.</p></div>
+      <div class="card glass step"><div class="n">2</div><h3>It finds the keepers</h3><p>Sharp from soft, eyes-open from blink, the moment from the duplicate. It clears the obvious junk so you get straight to the shots that need your eye.</p></div>
+      <div class="card glass step"><div class="n">3</div><h3>Export your way</h3><p><span class="free">Free:</span> save the keepers as polished JPGs. <span class="pro">Pro:</span> save them back as untouched RAW to keep editing anywhere.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="cull-sim">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">The cull, live</div>
+      <h2>Watch it find the keepers.</h2>
+      <p>Five frames of the same moment, straight off the card. RAW Keepers scores every frame for focus and duplicates — keeping the sharp ones, setting the rest aside. <button class="cull-replay" id="cullReplay" type="button">Replay</button></p>
+    </div>
+    <div class="cullstrip" id="cullstrip">
+      <figure class="cframe" data-verdict="keep" data-reason="Sharp"><img src="images/cs1.jpg" alt="burst frame 1" loading="lazy"><span class="cscan"></span><figcaption class="cbadge"></figcaption></figure>
+      <figure class="cframe" data-verdict="keep" data-reason="Sharpest"><img src="images/cs2.jpg" alt="burst frame 2" loading="lazy"><span class="cscan"></span><figcaption class="cbadge"></figcaption></figure>
+      <figure class="cframe" data-verdict="drop" data-reason="Soft focus"><img src="images/cs3.jpg" alt="burst frame 3" loading="lazy"><span class="cscan"></span><figcaption class="cbadge"></figcaption></figure>
+      <figure class="cframe" data-verdict="drop" data-reason="Duplicate"><img src="images/cs4.jpg" alt="burst frame 4" loading="lazy"><span class="cscan"></span><figcaption class="cbadge"></figcaption></figure>
+      <figure class="cframe" data-verdict="drop" data-reason="Soft focus"><img src="images/cs5.jpg" alt="burst frame 5" loading="lazy"><span class="cscan"></span><figcaption class="cbadge"></figcaption></figure>
+    </div>
+    <div class="cullsum" id="cullsum"><strong>5 frames</strong> in, <strong class="kept-n">2 keepers</strong> out — the soft shots and the duplicate set aside, originals untouched. Now picture your whole card.</div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">What it does</div>
+      <h2>Built for real shoots, by a working photographer.</h2>
+      <p>Weddings, travel, events — even concert and stage light. The hard cases, handled.</p>
+    </div>
+    <div class="grid3">
+      <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-eye"/></svg></span><h3>It knows a blink from a keeper</h3><p>Soft focus, closed eyes, near-duplicate bursts, the best expression of the moment — sorted automatically.</p></div>
+      <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-droplet"/></svg></span><h3>Edits that look like you</h3><p>When it edits, it's tuned for natural skin and real exposure — not a one-tap filter everyone else is using.</p></div>
+      <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-shield"/></svg></span><h3>Your originals are sacred</h3><p>It never touches your originals. Ever. Your RAWs are exactly where you left them — it only works on copies.</p></div>
+      <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-stack"/></svg></span><h3>HDR &amp; event modes</h3><p>Hand-held HDR merging, dark-foreground recovery, and a dedicated mode for concert and stage light.</p></div>
+      <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-bolt"/></svg></span><h3>Fast on your machine</h3><p>GPU-accelerated, so a thousand frames doesn't mean a thousand seconds of waiting.</p></div>
+      <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-camera"/></svg></span><h3>Speaks your camera</h3><p>Reads the RAW files straight off your card and respects the colour your camera captured.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Real work</div>
+      <h2>Made for the shoots you live for.</h2>
+      <p>Weddings, travel, concerts, events — thousands of frames in, your keepers out.</p>
+    </div>
+    <div class="gallery">
+      <img src="images/gal1.jpg" alt="Venice lagoon skyline with gondola moorings" loading="lazy">
+      <img src="images/gal2.jpg" alt="Santa Maria della Salute basilica" loading="lazy">
+      <img src="images/gal3.jpg" alt="Gondolas on the Venetian lagoon" loading="lazy">
+      <img src="images/gal4.jpg" alt="St Mark's Square" loading="lazy">
+      <img src="images/gal5.jpg" alt="The Salute from a canal-side terrace" loading="lazy">
+      <img src="images/gal6.jpg" alt="Venetian café table setting" loading="lazy">
+      <img src="images/gal7.jpg" alt="St Mark's Square arcades" loading="lazy">
+      <img src="images/gal8.jpg" alt="Venice waterfront from the lagoon" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section id="before-after">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Before / after</div>
+      <h2>Straight off the card, then finished.</h2>
+      <p>Drag across each shot. From a Venice canal to a temple at dusk to a night market — RAW Keepers opens the dark areas, holds the bright sky, keeps the colour natural, and even levels a crooked horizon. Automatically.</p>
+    </div>
+    <div class="bagrid">
+      <div class="ba"><img class="ba-img after" src="images/ba1_after.jpg" alt="edited Venice canal"><img class="ba-img before" src="images/ba1_before.jpg" alt="unedited Venice canal"><span class="ba-cat">Travel</span><div class="ba-handle"></div><span class="ba-tag l">Before</span><span class="ba-tag r">After</span></div>
+      <div class="ba"><img class="ba-img after" src="images/ba2_after.jpg" alt="edited temple at dusk"><img class="ba-img before" src="images/ba2_before.jpg" alt="unedited temple at dusk"><span class="ba-cat">Dusk</span><div class="ba-handle"></div><span class="ba-tag l">Before</span><span class="ba-tag r">After</span></div>
+      <div class="ba"><img class="ba-img after" src="images/ba3_after.jpg" alt="edited lit tea house at night"><img class="ba-img before" src="images/ba3_before.jpg" alt="unedited tea house at night"><span class="ba-cat">Shadow recovery</span><div class="ba-handle"></div><span class="ba-tag l">Before</span><span class="ba-tag r">After</span></div>
+      <div class="ba"><img class="ba-img after" src="images/ba4_after.jpg" alt="levelled horizon"><img class="ba-img before" src="images/ba4_before.jpg" alt="crooked horizon"><span class="ba-cat">Auto-level</span><div class="ba-handle"></div><span class="ba-tag l">Crooked</span><span class="ba-tag r">Level</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="callout">
+  <div class="wrap">
+    <div class="panel glass">
+      <div class="eyebrow">You're still the photographer</div>
+      <h2>It won't pick your favourites for you.</h2>
+      <p>RAW Keepers clears the noise — the duplicates, the blinks, the misfires — so you get to the choices that actually need your eye. The keepers are yours to make. It just gets you there in minutes.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Pricing</div>
+      <h2>Free to start. Fair to stay.</h2>
+      <p>Free to download, free to cull, free to export JPGs. Pay only when you want your keepers back as RAW.</p>
+      <p style="color:var(--txt2);font-size:15px;margin-top:8px">During the beta, RAW Keepers is free to try — these prices apply at launch. Got an invite or launch code? You'll be able to apply it for up to 15% off.</p>
+    </div>
+    <div class="tiers">
+      <div class="tier glass">
+        <div class="tname"><svg class="ic"><use href="#i-photo"/></svg> Free</div>
+        <div class="price">$0</div>
+        <div class="tsub">download &amp; keep</div>
+        <ul>
+          <li><svg class="ic"><use href="#i-check"/></svg>Cull RAW — DNG &amp; NEF</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Auto-edit, level, enhance</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Export as JPG — print + web</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Up to 100 photos per batch</li>
+          <li class="no"><svg class="ic"><use href="#i-x"/></svg>RAW output</li>
+        </ul>
+        <a class="btn btn-glass" href="#download" style="justify-content:center">Join the beta</a>
+      </div>
+      <div class="tier glass feat-tier">
+        <div class="tag">Most popular</div>
+        <div class="tname"><svg class="ic"><use href="#i-star"/></svg> Pro</div>
+        <div class="price">$45<span> / year</span></div>
+        <div class="tsub">or $5.49 / month · 14-day free trial</div>
+        <ul>
+          <li><svg class="ic"><use href="#i-check"/></svg>Everything in Free</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Save keepers as RAW (DNG)</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Unlimited photos</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>HDR merge + manual HDR</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Batch processing</li>
+        </ul>
+        <a class="btn btn-primary" href="#download" style="justify-content:center">Join the beta</a>
+      </div>
+      <div class="tier glass">
+        <div class="tname"><svg class="ic"><use href="#i-infinity"/></svg> Lifetime</div>
+        <div class="price">$89<span> once</span></div>
+        <div class="tsub">great for early friends</div>
+        <ul>
+          <li><svg class="ic"><use href="#i-check"/></svg>Everything in Pro</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>One-time payment</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>All future updates</li>
+        </ul>
+        <a class="btn btn-glass" href="#download" style="justify-content:center">Join the beta</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dl" id="download">
+  <div class="wrap">
+    <div class="panel glass">
+      <div class="eyebrow">Beta</div>
+      <h2>Join the RAW Keepers beta.</h2>
+      <p>We're rolling out invites in waves. Leave your email and we'll tell you the moment your download is ready — Mac &amp; Windows.</p>
+      <form class="beta-form" id="beta-form" name="beta" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="beta">
+        <p hidden><label>Leave this empty: <input name="bot-field"></label></p>
+        <input type="email" name="email" required placeholder="you@email.com" aria-label="Email address">
+        <button class="btn btn-primary" type="submit">Notify me</button>
+      </form>
+      <div class="beta-msg" id="beta-msg"></div>
+      <div class="req">Downloads open soon · macOS 12+ · Windows 10/11 · your photos never leave your computer</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fwrap glass">
+      <div>
+        <div class="fbrand">RAW Keepers</div>
+        <div style="color:var(--txt2)">Find the keepers. Skip the rest.</div>
+        <div style="margin-top:10px;color:var(--txt3)">Built by a photographer, for photographers.</div>
+      </div>
+      <div class="foot-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="mailto:support@rawkeepers.com">support@rawkeepers.com</a>
+      </div>
+    </div>
+    <div class="copy">© 2026 RAW Keepers · rawkeepers.com · rawkeepers.app · rawkeepers.ai</div>
+  </div>
+</footer>
+
+<script>(function(){var w=document.getElementById('appshot');if(!w)return;var f=w.querySelector('iframe');function s(){var sc=w.clientWidth/1040;f.style.transform='scale('+sc+')';w.style.height=Math.round(706*sc)+'px';}addEventListener('resize',s);s();setTimeout(s,250);})();</script>
+<script>(function(){var f=document.getElementById('beta-form');if(!f)return;f.addEventListener('submit',function(e){e.preventDefault();var m=document.getElementById('beta-msg');var i=f.querySelector('input[type=email]');var em=i?(i.value||'').trim():'';if(!em)return;location.href='mailto:support@rawkeepers.com?subject='+encodeURIComponent('RAW Keepers beta access')+'&body='+encodeURIComponent('Please add me to the RAW Keepers beta. Email: '+em);if(m)m.textContent="Thanks! Your email app will open to confirm — or write support@rawkeepers.com.";f.reset();});})();</script>
+<script>document.querySelectorAll('.ba').forEach(function(b){var bef=b.querySelector('.before'),h=b.querySelector('.ba-handle');function s(p){p=Math.max(2,Math.min(98,p));bef.style.clipPath='inset(0 '+(100-p)+'% 0 0)';h.style.left=p+'%';}b.addEventListener('pointermove',function(e){var r=b.getBoundingClientRect();s((e.clientX-r.left)/r.width*100);});s(50);});</script>
+<script>(function(){
+  var strip=document.getElementById('cullstrip'); if(!strip) return;
+  var frames=[].slice.call(strip.querySelectorAll('.cframe'));
+  var sum=document.getElementById('cullsum'), timers=[];
+  function reset(){timers.forEach(clearTimeout);timers=[];frames.forEach(function(f){f.classList.remove('scanning','revealed','keep','drop');f.querySelector('.cbadge').innerHTML='';});if(sum)sum.style.opacity=0;}
+  function run(){
+    reset();
+    frames.forEach(function(f,i){
+      timers.push(setTimeout(function(){f.classList.add('scanning');}, i*200));
+      timers.push(setTimeout(function(){
+        var v=f.getAttribute('data-verdict'), r=f.getAttribute('data-reason');
+        f.classList.add('revealed', v);
+        f.querySelector('.cbadge').innerHTML='<span class="dot"></span>'+(v==='keep'?'Keeper ✓':r+' ✗');
+      }, i*200+560));
+    });
+    timers.push(setTimeout(function(){if(sum)sum.style.opacity=1;}, frames.length*200+780));
+  }
+  var ran=false;
+  function start(){if(!ran){ran=true;run();}}
+  function inView(){var r=strip.getBoundingClientRect();return r.top<innerHeight*0.85 && r.bottom>40;}
+  if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)start();});},{threshold:.3}).observe(strip);}
+  addEventListener('scroll',function(){if(inView())start();},{passive:true});
+  if(inView())start();
+  var rb=document.getElementById('cullReplay'); if(rb) rb.addEventListener('click',run);
+})();</script>
+</body>
+</html>
