@@ -50,10 +50,18 @@
   .brand{display:flex;align-items:center;gap:9px;color:#fff;font-weight:700;font-size:18px;letter-spacing:-.01em}
   .brand .mk{width:28px;height:28px;border-radius:8px;display:block;object-fit:contain}
   .brand .beta{font-size:10px;font-weight:700;letter-spacing:.09em;color:var(--accent);background:rgba(234,173,78,.12);border:1px solid rgba(234,173,78,.45);padding:2px 6px;border-radius:6px;line-height:1;transform:translateY(-1px);margin-left:-3px}
-  .beta-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0 12px}
-  .beta-form input{flex:1 1 280px;max-width:360px;padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:15px;outline:none}
+  .beta-form{display:flex;flex-direction:column;align-items:center;gap:13px;margin:10px 0 12px}
+  .beta-q{font-size:14.5px;color:var(--txt);font-weight:600}
+  .beta-opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:580px}
+  .beta-opts label{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:var(--txt2);background:rgba(255,255,255,.06);border:1px solid var(--bdr);padding:8px 13px;border-radius:10px;cursor:pointer;transition:border-color .15s,background .15s}
+  .beta-opts label:has(input:checked){border-color:var(--accent);color:#fff;background:rgba(234,173,78,.13)}
+  .beta-opts input{accent-color:var(--accent);margin:0}
+  .beta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%}
+  .beta-form input[type=email],#beta-other{padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:15px;outline:none}
+  .beta-form input[type=email]{flex:1 1 280px;max-width:360px}
+  #beta-other{width:100%;max-width:580px}
   .beta-form input::placeholder{color:var(--txt3)}
-  .beta-form input:focus{border-color:var(--accent)}
+  .beta-form input[type=email]:focus,#beta-other:focus{border-color:var(--accent)}
   .beta-msg{color:var(--keep);font-weight:600;margin:2px 0 12px;min-height:1px}
   .navlinks{display:flex;gap:28px;color:var(--txt2);font-size:15px;font-weight:500}
   .navlinks a:hover{color:#fff}
@@ -392,9 +400,19 @@
       <h2>Join the RAW Keepers beta.</h2>
       <p>We're rolling out invites in waves. Leave your email and we'll tell you the moment your download is ready — for Windows (Mac coming later).</p>
       <form class="beta-form" id="beta-form">
-        <input type="email" name="email" required placeholder="you@email.com" aria-label="Email address">
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
-        <button class="btn btn-primary" type="submit">Notify me</button>
+        <div class="beta-q">I'd like to beta-test because I'm a…</div>
+        <div class="beta-opts">
+          <label><input type="radio" name="I am a" value="Professional Photographer" required> Professional Photographer</label>
+          <label><input type="radio" name="I am a" value="Pro Hobbyist (1+ pro cameras)"> Pro Hobbyist <span class="dim">(1+ pro cameras)</span></label>
+          <label><input type="radio" name="I am a" value="Content Creator"> Content Creator</label>
+          <label><input type="radio" name="I am a" value="Other"> Other</label>
+        </div>
+        <input type="text" name="Other" id="beta-other" placeholder="If other, tell us a bit…" style="display:none" aria-label="Other (please specify)">
+        <div class="beta-row">
+          <input type="email" name="email" required placeholder="you@email.com" aria-label="Email address">
+          <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+          <button class="btn btn-primary" type="submit">Join the beta</button>
+        </div>
       </form>
       <div class="beta-msg" id="beta-msg"></div>
       <div class="req">Downloads open soon · Windows 10/11 · your photos never leave your computer</div>
@@ -423,6 +441,8 @@
 
 <script>(function(){var w=document.getElementById('appshot');if(!w)return;var f=w.querySelector('iframe');function s(){var sc=w.clientWidth/1040;f.style.transform='scale('+sc+')';w.style.height=Math.round(706*sc)+'px';}addEventListener('resize',s);s();setTimeout(s,250);})();</script>
 <script>(function(){var f=document.getElementById('beta-form');if(!f)return;
+var other=document.getElementById('beta-other');
+f.addEventListener('change',function(e){if(e.target.name==='I am a'&&other){var o=(e.target.value==='Other');other.style.display=o?'block':'none';if(o)other.focus();}});
 f.addEventListener('submit',function(e){e.preventDefault();
   var m=document.getElementById('beta-msg');var i=f.querySelector('input[type=email]');
   var em=i?(i.value||'').trim():'';if(!em)return;
@@ -433,7 +453,7 @@ f.addEventListener('submit',function(e){e.preventDefault();
   data.append('_captcha','false');
   fetch('https://formsubmit.co/ajax/support@rawkeepers.com',{method:'POST',headers:{'Accept':'application/json'},body:data})
     .then(function(r){return r.json();})
-    .then(function(){if(m)m.textContent="Thanks — you're on the beta list! We'll email you when your download is ready.";f.reset();})
+    .then(function(){if(m)m.textContent="Thanks — you're on the beta list! We'll email you when your download is ready.";f.reset();if(other)other.style.display='none';})
     .catch(function(){if(m){m.style.color='#ff9b6b';m.textContent="Couldn't submit just now — please email support@rawkeepers.com and we'll add you.";}});
 });})();</script>
 <script>document.querySelectorAll('.ba').forEach(function(b){var bef=b.querySelector('.before'),h=b.querySelector('.ba-handle');function s(p){p=Math.max(2,Math.min(98,p));bef.style.clipPath='inset(0 '+(100-p)+'% 0 0)';h.style.left=p+'%';}b.addEventListener('pointermove',function(e){var r=b.getBoundingClientRect();s((e.clientX-r.left)/r.width*100);});s(50);});</script>
