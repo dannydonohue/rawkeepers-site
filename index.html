@@ -160,6 +160,18 @@
   .ba-tag{position:absolute;bottom:10px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:7px;background:rgba(8,8,16,.5);color:#fff;backdrop-filter:blur(6px);pointer-events:none}
   .ba-tag.l{left:10px}.ba-tag.r{right:10px}
   .ba-cat{position:absolute;top:10px;left:10px;font-size:11px;font-weight:600;letter-spacing:.04em;padding:4px 9px;border-radius:7px;background:rgba(8,8,16,.5);color:var(--accent2);backdrop-filter:blur(6px);pointer-events:none}
+  .birdgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+  .birdcard{border-radius:16px;padding:12px;border:1px solid var(--bdr)}
+  .birdpair{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
+  .birdshot{position:relative;border-radius:11px;overflow:hidden;aspect-ratio:3/2;border:1px solid var(--bdr)}
+  .birdshot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .birdshot .tag{position:absolute;left:8px;bottom:8px;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:rgba(8,8,16,.55);color:#fff;backdrop-filter:blur(6px)}
+  .birdshot.aft .tag{color:var(--keep)}
+  .birdcaps{display:flex;justify-content:space-between;margin-top:9px;font-size:12.5px;color:var(--txt3)}
+  .birdcaps .k{color:var(--accent2);font-weight:600}
+  .birdsteps{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+  .birdstep{font-size:13px;color:var(--txt2);background:var(--glass);border:1px solid var(--bdr);border-radius:10px;padding:8px 13px}
+  .birdstep b{color:var(--accent2);font-weight:600}
   #cull-sim .cullstrip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:4px}
   .cframe{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--bdr);aspect-ratio:3/2;background:#0c0c14;transition:transform .55s cubic-bezier(.2,.7,.2,1),filter .55s ease,opacity .55s ease,box-shadow .45s ease}
   .cframe img{width:100%;height:100%;object-fit:cover;display:block}
@@ -289,7 +301,7 @@
       <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-eye"/></svg></span><h3>It knows a blink from a keeper</h3><p>Soft focus, closed eyes, near-duplicate bursts, the best expression of the moment — sorted automatically.</p></div>
       <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-droplet"/></svg></span><h3>Edits that look like you</h3><p>When it edits, it's tuned for natural skin and real exposure — not a one-tap filter everyone else is using.</p></div>
       <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-shield"/></svg></span><h3>Your originals are sacred</h3><p>It never touches your originals. Ever. Your RAWs are exactly where you left them — it only works on copies.</p></div>
-      <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-stack"/></svg></span><h3>HDR &amp; event modes</h3><p>Hand-held HDR merging, dark-foreground recovery, and a dedicated mode for concert and stage light.</p></div>
+      <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-stack"/></svg></span><h3>HDR, event &amp; bird modes</h3><p>Hand-held HDR merging, dark-foreground recovery, and dedicated modes for concert &amp; stage light and for <a href="#bird-mode" style="color:var(--accent2)">bird &amp; wildlife</a> — sharp-eye culling with a tight auto-crop.</p></div>
       <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-bolt"/></svg></span><h3>Fast on your machine</h3><p>GPU-accelerated, so a thousand frames doesn't mean a thousand seconds of waiting.</p></div>
       <div class="card glass"><span class="icon-chip"><svg class="ic"><use href="#i-camera"/></svg></span><h3>Speaks your camera</h3><p>Reads the RAW files straight off your card and respects the colour your camera captured.</p></div>
     </div>
@@ -329,6 +341,44 @@
       <div class="ba"><img class="ba-img after" src="images/ba2_after.jpg" alt="edited temple at dusk"><img class="ba-img before" src="images/ba2_before.jpg" alt="unedited temple at dusk"><span class="ba-cat">Dusk</span><div class="ba-handle"></div><span class="ba-tag l">Before</span><span class="ba-tag r">After</span></div>
       <div class="ba"><img class="ba-img after" src="images/ba3_after.jpg" alt="edited lit tea house at night"><img class="ba-img before" src="images/ba3_before.jpg" alt="unedited tea house at night"><span class="ba-cat">Shadow recovery</span><div class="ba-handle"></div><span class="ba-tag l">Before</span><span class="ba-tag r">After</span></div>
       <div class="ba"><img class="ba-img after" src="images/ba4_after.jpg" alt="levelled horizon"><img class="ba-img before" src="images/ba4_before.jpg" alt="crooked horizon"><span class="ba-cat">Auto-level</span><div class="ba-handle"></div><span class="ba-tag l">Crooked</span><span class="ba-tag r">Level</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="bird-mode">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">New · Bird &amp; wildlife mode</div>
+      <h2>Culled, cropped, and edited — for the birds.</h2>
+      <p>Point it at a card of bird shots. It keeps every frame where the bird is in focus — even a dark or off-centre one — and drops only the soft misses and the empty "flew-away" frames. Then it cleans the high-ISO grain while keeping the feathers sharp, brightens the bird, and crops in for a stronger frame: tight on a lone bird, wide enough for a pair.</p>
+    </div>
+    <div class="birdgrid">
+      <div class="birdcard glass">
+        <div class="birdpair">
+          <div class="birdshot"><img src="images/bird1_before.jpg" alt="original grainy bird frame at ISO 4000"><span class="tag">Original · ISO 4000</span></div>
+          <div class="birdshot aft"><img src="images/bird1_after.jpg" alt="culled, cropped and edited bird"><span class="tag">Culled · Cropped · Edited</span></div>
+        </div>
+        <div class="birdcaps"><span>Grainy, small in frame</span><span class="k">Clean, framed, sharp</span></div>
+      </div>
+      <div class="birdcard glass">
+        <div class="birdpair">
+          <div class="birdshot"><img src="images/bird2_before.jpg" alt="original distant perched bird"><span class="tag">Original · ISO 4000</span></div>
+          <div class="birdshot aft"><img src="images/bird2_after.jpg" alt="reframed and enhanced perched bird"><span class="tag">Culled · Cropped · Edited</span></div>
+        </div>
+        <div class="birdcaps"><span>Off-centre, distant</span><span class="k">Rule-of-thirds, closer</span></div>
+      </div>
+      <div class="birdcard glass">
+        <div class="birdpair">
+          <div class="birdshot"><img src="images/bird3_before.jpg" alt="original dark bird on a branch"><span class="tag">Original · ISO 4000</span></div>
+          <div class="birdshot aft"><img src="images/bird3_after.jpg" alt="brightened and cropped bird on a branch"><span class="tag">Culled · Cropped · Edited</span></div>
+        </div>
+        <div class="birdcaps"><span>Dark, buried in the scene</span><span class="k">Lifted and cropped in</span></div>
+      </div>
+    </div>
+    <div class="birdsteps">
+      <div class="birdstep"><b>Culls on focus</b> — keeps the sharp birds, drops soft &amp; empty frames</div>
+      <div class="birdstep"><b>Crops the frame</b> — tighter for one bird, thirds when perched, centred for action</div>
+      <div class="birdstep"><b>Cleans &amp; brightens</b> — high-ISO grain gone, feathers kept sharp</div>
     </div>
   </div>
 </section>
