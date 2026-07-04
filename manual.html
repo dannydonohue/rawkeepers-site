@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAW Keepers — The Manual: how it works, and why it works that way</title>
+<meta name="description" content="The complete guide to the methods inside RAW Keepers — culling, HDR, leveling, sports, stage, bird mode and AI denoise — written for photographers first.">
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--accent:#eaad4e;--accent2:#f4c577;--keep:#34d39a;--rem:#ff7a7a;--after:#ffa96b;
+        --txt:#eef0f6;--txt2:#b6bac8;--bdr:rgba(255,255,255,.12);--maxw:880px}
+  html{scroll-behavior:smooth}
+  a{color:inherit;text-decoration:none}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--txt);background:#070710;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;background:
+    radial-gradient(900px 500px at 80% -10%,rgba(234,173,78,.14),transparent 60%),
+    radial-gradient(700px 500px at -10% 30%,rgba(94,114,235,.10),transparent 60%),#070710}
+  .glass{background:rgba(255,255,255,.055);border:1px solid var(--bdr);border-radius:18px;
+         backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  nav{position:sticky;top:14px;z-index:30;margin:14px auto 0;max-width:var(--maxw);padding:0 20px}
+  .navbar{display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 16px 0 16px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.02em}
+  .brand img{width:26px;height:26px;border-radius:7px}
+  .navlinks{display:flex;gap:22px;color:var(--txt2);font-size:14.5px;font-weight:500}
+  .navlinks a:hover{color:#fff}
+  .nav-cta{color:#241704;background:linear-gradient(140deg,#f4c577,#e7a23c);padding:8px 15px;border-radius:11px;font-weight:600;font-size:13.5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+  header{max-width:var(--maxw);margin:56px auto 8px;padding:0 20px;text-align:center}
+  .eyebrow{font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:clamp(30px,5.4vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:10px 0 12px}
+  h1 .hl{color:var(--accent)}
+  .sub{color:var(--txt2);font-size:17px;max-width:640px;margin:0 auto}
+  .meta{color:#888da0;font-size:13.5px;margin-top:14px}
+  .panel{background:rgba(255,255,255,.045);border:1px solid var(--bdr);border-radius:18px}
+  .toc{max-width:var(--maxw);margin:30px auto 0;padding:18px 22px;display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--txt2)}
+  .toc a{padding:3px 0;border-bottom:1px solid transparent}
+  .toc a:hover{color:var(--accent2);border-color:rgba(234,173,78,.4)}
+  main{max-width:var(--maxw);margin:26px auto 80px;padding:34px 34px 40px}
+  main p{color:var(--txt2);font-size:15.5px;margin:0 0 14px}
+  main p b{color:var(--txt)}
+  h2.sec{font-size:26px;font-weight:800;letter-spacing:-.015em;color:#fff;margin:44px 0 14px;padding-top:22px;border-top:1px solid var(--bdr)}
+  h2.sec:first-of-type{border-top:none;margin-top:6px;padding-top:0}
+  h3{font-size:18px;font-weight:700;color:var(--accent2);margin:26px 0 10px}
+  ul{margin:0 0 16px 22px;color:var(--txt2);font-size:15.5px}
+  li{margin-bottom:7px}
+  li b{color:var(--txt)}
+  .callout{border-radius:14px;padding:16px 18px;margin:18px 0;border:1px solid var(--bdr);font-size:14.5px}
+  .callout p{font-size:14.5px;margin:0 0 8px}
+  .callout p:last-child{margin:0}
+  .callout .ct{font-size:11.5px;font-weight:700;letter-spacing:.08em;margin-bottom:8px}
+  .callout.why{background:rgba(52,211,154,.07);border-color:rgba(52,211,154,.25)}
+  .callout.why .ct{color:var(--keep)}
+  .callout.tech{background:rgba(255,255,255,.045)}
+  .callout.tech .ct{color:#9aa3b8}
+  .fig{margin:22px 0}
+  .fig img{width:100%;height:auto;border-radius:14px;border:1px solid var(--bdr);display:block}
+  .fig .strip{display:flex;gap:8px}
+  .fig .strip img{flex:1;min-width:0}
+  figcaption{margin-top:9px;font-size:13.5px;color:var(--txt2);line-height:1.55}
+  figcaption .exif{display:block;font-size:12px;color:#7f8496;font-style:italic;margin-top:3px}
+  .lead-kept{color:var(--keep);font-weight:700}
+  .lead-rem{color:var(--rem);font-weight:700}
+  .lead-after{color:var(--after);font-weight:700}
+  .lead-grey{color:#c6cad6;font-weight:700}
+  table.data{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+  table.data th{text-align:left;color:var(--accent2);font-weight:600;padding:9px 12px;border-bottom:1px solid rgba(234,173,78,.35)}
+  table.data td{color:var(--txt2);padding:8px 12px;border-bottom:1px solid var(--bdr)}
+  footer{max-width:var(--maxw);margin:0 auto 40px;padding:0 20px;text-align:center;color:#888da0;font-size:13.5px}
+  footer a{color:var(--accent)}
+  .top{position:fixed;right:22px;bottom:22px;z-index:40;width:44px;height:44px;display:grid;place-items:center;
+       font-size:19px;color:var(--accent2);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .25s}
+  .top.show{opacity:1;pointer-events:auto}
+  @media(max-width:640px){ main{padding:24px 18px} .navlinks{display:none} .fig .strip{flex-direction:column} }
+</style>
+</head>
+<body>
+<nav><div class="navbar glass">
+  <a class="brand" href="/"><img src="logo.png" alt="RAW Keepers logo">RAW&nbsp;KEEPERS</a>
+  <div class="navlinks"><a href="/#how">How it works</a><a href="/#features">Features</a><a href="/#pricing">Pricing</a><a href="/#updates">What's new</a></div>
+  <a class="nav-cta" href="/#download">Join the beta</a>
+</div></nav>
+
+<header>
+  <div class="eyebrow">The Manual</div>
+  <h1>How it works — <span class="hl">and why it works that way</span></h1>
+  <p class="sub">The complete guide to the methods inside the app — written for photographers first, engineers second.</p>
+  <div class="meta">Version 1.25 (beta v1.25.8) · July 2026 · Architect &amp; Designer: Danny D.</div>
+</header>
+
+<div class="toc panel"><a href="#why-i-built-this">Why I built this</a><a href="#what-s-inside">What&#x27;s inside</a><a href="#1-welcome-what-raw-keepers-is">1 · Welcome — what RAW Keepers is</a><a href="#2-the-big-idea-cull-first-edit-second">2 · The big idea: cull first, edit second</a><a href="#3-finding-the-keepers-the-cull">3 · Finding the keepers (the cull)</a><a href="#4-getting-photos-level-trusting-the-camera-s-own-sensor">4 · Getting photos level — trusting the camera&#x27;s own sensor</a><a href="#5-hdr-without-the-ghosts">5 · HDR without the ghosts</a><a href="#6-editing-that-respects-the-photo">6 · Editing that respects the photo</a><a href="#7-the-shooting-modes">7 · The shooting modes</a><a href="#8-ai-denoise-cleaning-grain-the-modern-way">8 · AI Denoise — cleaning grain the modern way</a><a href="#9-the-camera-back-screen">9 · The camera-back screen</a><a href="#10-built-in-safety-and-honesty">10 · Built-in safety and honesty</a><a href="#11-speaking-every-camera-s-raw-language">11 · Speaking every camera&#x27;s RAW language</a><a href="#12-how-it-all-gets-tested">12 · How it all gets tested</a><a href="#13-a-few-numbers-tech-people-will-enjoy">13 · A few numbers tech people will enjoy</a><a href="#14-plain-english-glossary">14 · Plain-English glossary</a></div>
+
+<main class="panel">
+<h2 class="sec" id="why-i-built-this">Why I built this</h2>
+<p><i>A note from the maker</i></p>
+<p>I made this program for photographers, because I am one myself. By day I run a robotics start-up — I&#x27;m an inventor, a husband, and a father of three girls. And in my free time, or in my time with my girls, I&#x27;m a photographer.</p>
+<p>I&#x27;ve been doing photography since I was thirteen, and I&#x27;ve lived through every change the photography world has thrown at us since. I used to shoot architecture; my real passion was bird photography — chasing rare species in Brazil. Back then, every keeper was hard-won. But cameras kept getting faster and better, and somewhere along the way I got spoiled: these days I rarely miss a shot. Shooting at ten frames a second or more in RAW, though, creates a new problem — too many photos to go through.</p>
+<p>For years that was manageable. I&#x27;d come home with a few hundred frames, cull them in Lightroom Classic, perfect the RAW settings, do the occasional edit. Then came one particular stretch: I shot a local basketball team. I shot a show. The next day was my baby girl&#x27;s ten-month birthday, so I photographed her — and then we were off to the park with friends. Between my two cameras and several battery changes, I was averaging over two thousand pictures per session. When I finally sat down at my workstation, I was staring at roughly fifteen thousand photos.</p>
+<p>I was tired. I wanted to go to bed, and instead I was grinding through thumbnails. And Lightroom simply isn&#x27;t built for this — too many options, and all that visual rendering makes it heavy; with that many photos it crashes even on a serious machine.</p>
+<p>My wife watched me spending hours at it and said: “Why don&#x27;t you just make a program to do that for you?”</p>
+<p>She was right. If I invested a little time building my own tool — suited to my taste, my style, my needs — then everything afterward would be a breeze. The goal was simple: point the software at the folder from the memory card, choose where the results should go, and let it do the rest. Nothing else to decide.</p>
+<p>Thanks to the amazing programming and debugging tools available today, my first working version was done in two weeks. And because I had over a hundred thousand photos taken across the years, I could tune the program&#x27;s internal logic against my own history — my original RAW files on one side, the edits I had made one by one on the other. The automation isn&#x27;t perfect, but it comes remarkably close to the methods I&#x27;ve learned over a lifetime of shooting — except now it&#x27;s all automatic. Set-and-forget batch processing: culling, converting camera RAW to DNG, and then, if you want, batch-editing everything.</p>
+<p>One decision mattered more than any other: everything runs locally, with algorithmic solutions on your own PC — not an online AI editor. Uploading thousands of large RAW files to the cloud and waiting for a service to hand them back simply isn&#x27;t practical. Your photos stay on your machine, and the machine does the work.</p>
+<p>Today, those fifteen thousand photos are done in under an hour instead of days and days. The output lands automatically in two folders: high-resolution 300-DPI JPGs ready for printing or developing, and web-sized versions for sharing — all from a simple folder selection, nothing else. I still open Lightroom here and there for a key edit on a special frame — but I do it on the keepers my program has already found.</p>
+<p>I hope this program helps others who face the same problem I did. If you run into issues, or you see ways I can make it better, let me know.</p>
+<p>Enjoy RAW Keepers — I hope it helps you as much as it helps me.</p>
+<p><b>— Cheers, Danny D.</b></p>
+<h2 class="sec" id="what-s-inside">What&#x27;s inside</h2>
+<p><i>Why I built this — a note from Danny</i></p>
+<p><b>1.  </b>Welcome — what RAW Keepers is</p>
+<p><b>2.  </b>The big idea: cull first, edit second</p>
+<p><b>3.  </b>Finding the keepers (the cull)</p>
+<p><b>4.  </b>Getting photos level — trusting the camera&#x27;s own sensor</p>
+<p><b>5.  </b>HDR without the ghosts</p>
+<p><b>6.  </b>Editing that respects the photo</p>
+<p><b>7.  </b>The shooting modes: Sports, Concert, Bird, Product</p>
+<p><b>8.  </b>AI Denoise — cleaning grain the modern way</p>
+<p><b>9.  </b>The camera-back screen</p>
+<p><b>10.  </b>Built-in safety and honesty</p>
+<p><b>11.  </b>Speaking every camera&#x27;s RAW language</p>
+<p><b>12.  </b>How it all gets tested</p>
+<p><b>13.  </b>A few numbers tech people will enjoy</p>
+<p><b>14.  </b>Plain-English glossary</p>
+<h2 class="sec" id="1-welcome-what-raw-keepers-is">1 · Welcome — what RAW Keepers is</h2>
+<p>Come home from a shoot with 3,000 photos, and the real work hasn&#x27;t started yet. Somebody has to look at every frame, throw away the misses, pick the best of each moment, and then edit the survivors. Professionals call that first pass “culling,” and it can eat an entire evening.</p>
+<p>RAW Keepers is a Windows app that does that first pass for you. It reads the RAW files straight off your memory card, finds the frames worth keeping, and can then edit those keepers into finished, natural-looking photos — automatically, on your own computer.</p>
+<p><b>Two promises shape everything in this manual:</b></p>
+<ul><li><b>Your originals are sacred — </b>the app never modifies or deletes a RAW file. It only ever works on copies. Ever.</li><li><b>Everything happens on your PC — </b>no photo is uploaded anywhere. There is no cloud, no account, no subscription needed to cull. Your photos never leave your machine.</li></ul>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>Cloud services can be faster to build and easier to monetize — but they mean uploading gigabytes after every shoot, monthly fees, and trusting a stranger&#x27;s server with unreleased client work. A wedding photographer&#x27;s card is full of other people&#x27;s private moments.</p><p>Local-first was harder to engineer (the AI has to run on whatever PC you own), but it means the app works on an airplane, costs nothing per photo, and privacy isn&#x27;t a policy — it&#x27;s physics.</p></div>
+<h2 class="sec" id="2-the-big-idea-cull-first-edit-second">2 · The big idea: cull first, edit second</h2>
+<p>The app has two buttons that matter: CULL and EDIT. They mirror how working photographers actually operate — first choose, then polish. You can run them separately or back-to-back.</p>
+<ul><li><b>CULL · Find the Keepers — </b>scans the whole folder, groups shots of the same moment, and keeps the best of each — sharp, well-exposed, eyes open and in focus.</li><li><b>EDIT · Finish them — </b>takes the keepers and produces two ready-to-use versions of each: a full-resolution print file and a phone-friendly copy.</li></ul>
+<p>Between those two steps sits a simple rule that guides the whole design: the app should behave like a careful darkroom assistant, not an over-eager intern. If a photo is already good, it is left almost completely alone.</p>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>The engine is Python + OpenCV, with the UI rendered as a camera-back styled HTML panel in a native window (pywebview). Heavy lifting — RAW decode, face detection, HDR merging, deep denoising — runs in the Python process; the interface only receives tiny progress events and 220-pixel thumbnails, so the display never slows the processing.</p><p>The cull analyses embedded preview JPEGs rather than full RAW demosaics — 10-20x faster, and every focus/exposure decision the cull makes is valid on the preview because it&#x27;s the camera&#x27;s own rendering of the same frame.</p></div>
+<h2 class="sec" id="3-finding-the-keepers-the-cull">3 · Finding the keepers (the cull)</h2>
+<p>The cull answers three questions about every frame: Is it technically good? Is it a duplicate of a better shot? And if people are in it — do they look good? Each question has its own method, and each method earned its place by being tested against real shoots.</p>
+<h3>Sharp or soft?</h3>
+<p>The app measures how much fine detail a frame actually contains — crisp edges score high, motion blur and missed focus score low. But rather than using one fixed pass/fail line for every photo, the bar adapts to each shoot: an evening indoor set is judged against evening indoor sharpness, not against a sunny-day standard.</p>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>Sharpness is Tenengrad energy — the sum of squared Sobel gradients — measured on a normalized downscale of each preview. The reject floor is relative (a fraction of the shoot&#x27;s median sharpness) with an absolute minimum, so one lens&#x27;s rendering or one venue&#x27;s light doesn&#x27;t cause mass false rejections.</p></div>
+<h3>One moment, one keeper</h3>
+<p>Ten frames of the same pose don&#x27;t deserve ten keepers. The app groups photos that show the same scene, then keeps the best from each group. The interesting part is how it decides two photos are “the same scene”: it looks at the background, not the people.</p>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>The first version fingerprinted the WHOLE frame — and failed in testing: the same family in front of the same fountain counted as “different scenes” every time someone moved an arm. Grouping by low-resolution background signature fixed it: people move, backgrounds don&#x27;t.</p><p>The alternative — AI scene classification — was tried and rejected: slower, heavier, and it grouped by what things ARE (“beach”) rather than where the camera was standing, which is what a photographer means by “same shot.”</p></div>
+<h3>The cull-amount knob — how picky should it be?</h3>
+<p>How many keepers is the right number? That depends on the photographer and the day - a wedding second-shooter wants one best frame per moment; a parent may want every good smile. So the strictness is a physical-feeling KNOB on the right side of the app, with five positions:</p>
+<ul><li><b>1 best / scene — </b>the strictest. One winner per moment, period. Best for huge event shoots you need to deliver fast.</li><li><b>fewer — </b>strict, but a scene with two genuinely different expressions may keep both.</li><li><b>balanced — </b>the default. Keeps the best of each moment plus meaningfully different variations.</li><li><b>more — </b>lenient - keeps most distinct frames, dropping only clear duplicates and technical misses.</li><li><b>keep most — </b>the safety net. Only obvious rejects (blur, blinks, bad exposure) are removed. You do the final choosing.</li></ul>
+<p>The picture below makes it concrete: the SAME ten frames from a real family shoot, culled five times - once at each knob position. Green border = kept; dimmed with an X = removed. Watch the keepers grow from 2 to 7 as the knob turns from strict to lenient - and notice the sharpest, best-expression frames survive at EVERY setting.</p>
+<figure class="fig"><img src="manual/m01.jpg" loading="lazy" alt=""><figcaption><span class="lead-kept">THE KNOB, IN ACTION</span> One burst, five strictness settings. The same best frames win every time; the knob only decides how many runners-up ride along.</figcaption></figure>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>Why a five-position knob instead of a free number (“keep 37%”)? Because percentages mean nothing at the card level - the right answer depends on how repetitive the shoot was. The five positions are photographic INTENTS (deliver one winner / give me options / just clear the junk), each mapped to tuned grouping thresholds that were validated on real shoots. Fewer choices, each one meaningful - like shutter priority instead of a physics exam.</p></div>
+<h3>The eyes rule</h3>
+<p>For photos of people, one thing decides keep-or-toss more than anything else: are the eyes sharp? A technically perfect frame with soft eyes is a reject; a slightly softer frame where the eyes are crisp is the keeper. The app finds each face, locates the eye line, and measures focus exactly there. It also prefers open eyes and flattering expressions when choosing among near-duplicates.</p>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>Faces come from YuNet (a compact, fast face detector that runs well on CPU); the eye-line focus measurement is Tenengrad sampled in a band across the detected eye landmarks. The keeper gate requires eye-focus of at least 45% of the shoot&#x27;s best - relative again, so a soft-lens shoot isn&#x27;t wiped out.</p></div>
+<h2 class="sec" id="4-getting-photos-level-trusting-the-camera-s-own-sensor">4 · Getting photos level — trusting the camera&#x27;s own sensor</h2>
+<p>A crooked horizon is the fastest way to make a photo feel amateur. Most software fixes tilt by analyzing the image — looking for lines that ought to be horizontal. RAW Keepers does something more direct: it asks the camera.</p>
+<p>Modern cameras contain the same tilt sensor your phone uses to rotate the screen. At the instant you press the shutter, the camera records exactly how many degrees it was rotated — and writes it invisibly into the photo file. RAW Keepers reads that number and levels the photo by precisely that amount.</p>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>This choice was settled by a family photo. Image-analysis methods (including an AI one) all said the photo was level; it looked level; three separate reviewers said the leveling code was wrong. The camera&#x27;s sensor said it was tilted 9.2 degrees. The camera was right - the whole scene (a sloping garden) was misleading every pixel-based method at once.</p><p>Lesson learned and kept: measured ground truth beats clever estimation. Pixel analysis remains only as the fallback for older cameras that don&#x27;t record tilt.</p></div>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>The tilt is read via exiftool as RollAngle - and it works across Nikon, Canon, Sony, Olympus, Panasonic and Pentax, because virtually every maker exposes the same field. The value is folded modulo 90° to remove portrait-grip rotation, leaving only residual roll. After rotation, the app crops to the largest inscribed rectangle - no mirrored edge padding.</p></div>
+<h2 class="sec" id="5-hdr-without-the-ghosts">5 · HDR without the ghosts</h2>
+<p>When a scene has both deep shadow and bright sky, photographers shoot exposure brackets — the same frame at several brightnesses — and merge them later. RAW Keepers finds those bracket sets on your card automatically and merges them into one balanced image.</p>
+<p>The hard part isn&#x27;t the merging. It&#x27;s knowing which frames belong together, and when merging is a bad idea.</p>
+<h3>Finding the brackets</h3>
+<p>The app doesn&#x27;t guess from timestamps. It reads the camera&#x27;s own exposure-compensation sequence — the 0, −1, +1 pattern the camera writes while auto-bracketing — and treats a set as complete when the pattern repeats. Frames shot seconds apart still group correctly; unrelated frames shot quickly never get pulled in.</p>
+<h3>Knowing when NOT to merge</h3>
+<p>Merging goes wrong when something in the scene moves — you get a ghost, a double image. So before merging, the app checks the frames for subject movement. Quick, still sets get merged; sets where the subject moved collapse to the single best frame instead. And photos with people are never HDR-merged at all — one well-chosen frame is edited instead.</p>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>The obvious alternative — merge everything and run “deghosting” — was tested and rejected. On a child&#x27;s light-up toy, deghost blending made the result worse: half-erased lights, smeared edges. The honest answer is that a moving subject doesn&#x27;t want to be merged; it wants its best single frame. Skipping the merge IS the fix.</p><p>Timestamps alone were also tried for grouping and failed - the app once paired frames shot 21 seconds apart and split real sets mid-burst. The camera&#x27;s own bracket bookkeeping is the only reliable signal, so that&#x27;s what is used.</p></div>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>Bracket grouping runs as a pre-pass on the flat timeline (so no bracket frame ever leaks into the cull as a “dark reject”). Sets merge via Mertens exposure fusion on GPU when available; subject-motion fraction between frames decides merge vs collapse-to-metered-sharpest.</p></div>
+<h2 class="sec" id="6-editing-that-respects-the-photo">6 · Editing that respects the photo</h2>
+<p>Auto-editing has a bad reputation because most of it edits everything, always, the same way. RAW Keepers starts from the opposite position:</p>
+<p><b>“If the original is good, don&#x27;t re-tone it.”</b></p>
+<p>Every photo is first checked: is it already well exposed, with real contrast and clean color? If yes, it passes through nearly untouched — leveled if needed, exported, done. The camera&#x27;s color, the eye catchlights, the mood: preserved. Only photos that genuinely need help get the full treatment.</p>
+<h3>The house style</h3>
+<p>When a photo does need editing, the corrections follow a specific recipe — not a generic “auto-enhance,” but the app designer&#x27;s own Lightroom formula, transplanted into code: open the shadows generously, protect the highlights, deepen the blacks slightly, add gentle vibrance with skin tones protected, and a touch of dehaze. Dark, backlit subjects get lifted; bright skies stay held; faces come out warm, never orange.</p>
+<h3>Care around people</h3>
+<p>People get extra, deliberately small, touches: a light skin smoothing that keeps texture, a gentle brightening of the eyes (they sit in brow shadow and every global lift under-reaches them), and — after any smoothing — the original eye catchlights are restored from the untouched image, because a missing sparkle reads as lifeless.</p>
+<h3>Grain control that scales</h3>
+<p>Noise reduction follows a rule of thumb photographers already know: the more you brighten, the more grain you reveal, so the more cleaning you need. The app measures how much it actually lifted each photo and cleans in proportion — base-ISO daylight shots keep every pixel of crispness, while a heavily lifted indoor shot gets real smoothing. Above ISO 800 the app also stops sharpening entirely, because sharpening grain just makes crunchy grain.</p>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>One-size-fits-all editing was never on the table - it&#x27;s what makes phone filters look like phone filters. Matching a real photographer&#x27;s recipe (with his before/afters as the test set) keeps the output looking like his work, only faster.</p><p>The passthrough decision came from testing too: early versions re-toned everything, and already-good photos came back subtly worse - duller catchlights, greyed pastels. The best edit for a good photo is no edit.</p></div>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>Order matters and is fixed: geometry (level/upright) → white balance (skin-protected) → tone (the recipe, adaptive to measured darkness/clipping) → denoise (scaled by ISO and by the measured brightness lift) → retouch → catchlight restoration from the pre-smoothing copy. WB runs before tone so casts leave the neutrals; denoise runs after tone so shadow-lift noise gets cleaned; sharpening is skipped above ISO 800.</p></div>
+<h3>Two real edits, start to finish</h3>
+<p>Both photographs on the following pages went through the automatic edit with no human touch-ups - each shown before and after on the same page so your eye can jump between them. Notice what DIDN&#x27;T change: the mood, the color of the light, the depth of the shadows that belong dark.</p>
+<figure class="fig"><img src="manual/m02.jpg" loading="lazy" alt=""><figcaption><span class="lead-grey">BEFORE</span> A Venice canal, straight off the card - the dark side swallows the detail.<span class="exif">Leica M11-P</span></figcaption></figure>
+<figure class="fig"><img src="manual/m03.jpg" loading="lazy" alt=""><figcaption><span class="lead-after">AFTER</span> The shadow side opened, the bright sky held, the color kept natural. No flat &#x27;HDR look.&#x27;</figcaption></figure>
+<figure class="fig"><img src="manual/m04.jpg" loading="lazy" alt=""><figcaption><span class="lead-grey">BEFORE</span> A lit tea house at night - the camera had to choose, and the surroundings went nearly black.<span class="exif">NIKON Z 8</span></figcaption></figure>
+<figure class="fig"><img src="manual/m05.jpg" loading="lazy" alt=""><figcaption><span class="lead-after">AFTER</span> The surroundings recovered, while the warmly lit interior stays exactly as inviting as it was.</figcaption></figure>
+<h2 class="sec" id="7-the-shooting-modes">7 · The shooting modes</h2>
+<p>Some kinds of photography break general rules on purpose. A concert is supposed to be dark. A basketball crowd is supposed to stay in shadow. A bird&#x27;s eye must be sharp even if the whole frame is dim. For those, the app has explicit modes — switches you flip, not guesses it makes.</p>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>Auto-detection was deliberately rejected for these modes. Lighting alone cannot tell a concert from a candlelit dinner - both are dark scenes with warm point lights - and a wrong guess would ruin the dinner photo with stage treatment. A manual switch costs the user one tap and removes a whole class of wrong-mood edits. The switches are also mutually exclusive: turning one on turns the others off, so modes can&#x27;t fight each other.</p></div>
+<h3>Sports mode</h3>
+<p>Culls toward the frame with the ball in the action and a fast shutter, and edits every shot the sports way: the floodlit court stays the bright subject, the crowd stays dark, and a crooked court gets leveled. Then the frame is CROPPED INTO THE ACTION by three rules: the crop keeps the EXACT aspect ratio of the original (so it prints to the same standard); the BALL is the focal point - the window centers on it as far as keeping every player allows (like the eye in bird photos); and the crowd is never the priority - the stadium at the top is cropped in favor of the action, and the dead dark foreground at the bottom is measured and excluded. The next two pages show the full three-step process on a real professional game: the original, the app&#x27;s actual plan (dashed box = crop, circle = the ball it found), and the result.</p>
+<p>A contested drive: the ball found (circle), the crop planned (dashed) - crowd trimmed above, dead foreground excluded - and the result at the same 3:2 the camera shot.</p>
+<p><i>NIKON Z 8  ·  NIKKOR Z 24-70mm f/2.8 S  ·  70 mm  ·  1/250 s  ·  f/5.6  ·  ISO 2000</i></p>
+<figure class="fig"><div class="strip"><img src="manual/m06.jpg" loading="lazy" alt=""><img src="manual/m07.jpg" loading="lazy" alt=""><img src="manual/m08.jpg" loading="lazy" alt=""></div><figcaption><span class="lead-grey">1 · ORIGINAL 2 · WHAT THE APP SAW 3 · RESULT</span></figcaption></figure>
+<p>A leap at the rim, shot vertical. The app finds the ball in the shooter&#x27;s hands, plans the crop around it - stadium top trimmed, floor kept - and delivers the same 2:3 vertical, tighter.</p>
+<p><i>NIKON Z 8  ·  NIKKOR Z 24-70mm f/2.8 S  ·  70 mm  ·  1/320 s  ·  f/5.6  ·  ISO 2000</i></p>
+<figure class="fig"><div class="strip"><img src="manual/m09.jpg" loading="lazy" alt=""><img src="manual/m10.jpg" loading="lazy" alt=""><img src="manual/m11.jpg" loading="lazy" alt=""></div><figcaption><span class="lead-grey">1 · ORIGINAL 2 · WHAT THE APP SAW 3 · RESULT</span></figcaption></figure>
+<h3>Concert / Stage mode</h3>
+<p>At a show, the LIGHTING IS THE PICTURE. So this mode never white-balances the gel colors away (the color is the artist&#x27;s vision), never lifts the blacks to grey (drama is contrast), and never dims the beams, glow, or haze. What it does instead is LOCAL: the performer gets a targeted fill so their detail reads clearly, a face-local tame catches a white-hot spotlight before it blows out, and a subtle vignette pulls the eye to the stage. The light effects stay as shot; the artist becomes clear. Two pages from a halftime show follow.</p>
+<figure class="fig"><img src="manual/m12.jpg" loading="lazy" alt=""><figcaption><span class="lead-grey">BEFORE</span> The singer under a deep blue gel, straight off the card.<span class="exif">NIKON Z 8  ·  NIKKOR Z 135mm f/1.8 S Plena  ·  135 mm  ·  1/500 s  ·  f/1.8  ·  ISO 2000</span></figcaption></figure>
+<figure class="fig"><img src="manual/m13.jpg" loading="lazy" alt=""><figcaption><span class="lead-after">AFTER</span> The gel and the mood UNTOUCHED - but the face, the shirt, the tattoos now read clearly. Artist lifted locally, never over-lit.</figcaption></figure>
+<figure class="fig"><img src="manual/m14.jpg" loading="lazy" alt=""><figcaption><span class="lead-grey">BEFORE</span> Colored beams and smoke glow cutting through the dark - exactly the scene auto-editors ruin.<span class="exif">NIKON Z 8  ·  NIKKOR Z 135mm f/1.8 S Plena  ·  135 mm  ·  1/500 s  ·  f/2.0  ·  ISO 2000</span></figcaption></figure>
+<figure class="fig"><img src="manual/m15.jpg" loading="lazy" alt=""><figcaption><span class="lead-after">AFTER</span> The beams and glow stay at full impact, the dark stays dark - and the performer is clearer.</figcaption></figure>
+<p>Because the whole point is that the lighting DOESN&#x27;T change, the proof lives at 100% - the artists up close, original versus edit:</p>
+<figure class="fig"><img src="manual/m16.jpg" loading="lazy" alt=""><figcaption><span class="lead-kept">THE CHANGE, AT 100% — THE CLOSEUP</span> Same pixels, same gel - the face and detail simply read better.</figcaption></figure>
+<figure class="fig"><img src="manual/m17.jpg" loading="lazy" alt=""><figcaption><span class="lead-kept">THE CHANGE, AT 100% — THE WIDE SHOT</span> The performer separates cleanly from the dark; the beam keeps its color and power.</figcaption></figure>
+<h3>Bird / wildlife mode</h3>
+<p>Built with a simple field truth: when a bird takes off, you hold the shutter down. Most of the burst is empty sky or motion blur — but the three sharp frames are gold, even if the bird is dark or badly placed in the frame. So bird mode culls on focus alone:</p>
+<ul><li><b>Keep — </b>every frame where the bird is genuinely in focus - even underexposed, even off-center. Those are fixable.</li><li><b>Drop — </b>only the true misses: the bird flew out of frame, or it&#x27;s a motion-blur smear.</li><li><b>No de-duplication — </b>a burst of a banking swallow is many different keepers, not one.</li></ul>
+<p>Then the edit does what you&#x27;d do by hand: cleans the high-ISO grain while keeping feathers sharp, brightens the bird, and re-crops — tight on a lone bird (rule-of-thirds when perched, centered when it&#x27;s action), wider when there&#x27;s a flock.</p>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>The normal cull would have been wrong here, and provably so: its keep-the-brighter-frame and one-per-scene logic would discard exactly the dark-but-sharp flight frames the photographer wants. The focus-only rule came straight from the photographer&#x27;s own rejects, and the final gate was validated the honest way: he reviewed all 379 frames the mode culled from a real 4,107-shot day and confirmed not one keeper was lost.</p><p>Measuring bird sharpness also needed its own invention. Averaging sharpness over the bird&#x27;s area failed - a tiny sharp swallow against smooth sky scored LOW because its box was 98% sky. The fix measures the bird&#x27;s crispest EDGE instead: a razor outline scores high at any size; only real motion blur collapses it.</p></div>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>Bird detection reuses the EfficientDet-Lite2 model already bundled for sports (its COCO classes include “bird”) - zero new dependencies. Detection runs full-frame plus a 2×2 overlapping tile pass to catch small distant birds. The focus gate: confident, adequately sized birds are judged by edge acutance (99.9th-percentile raw Sobel gradient magnitude in the tightened box, fixed 256² resize); everything else is judged as a scene, which is exactly how empty flew-away frames fall out.</p></div>
+<h3>What gets removed</h3>
+<p>First, the only two kinds of frame bird mode ever throws away - both from the real 4,107-shot validation day:</p>
+<figure class="fig"><img src="manual/m18.jpg" loading="lazy" alt=""><figcaption><span class="lead-rem">REMOVED · FLEW AWAY</span> The classic miss: the bird left the frame while the shutter was still firing. Empty sky.<span class="exif">NIKON D500  ·  AF-S Nikkor 200-500mm f/5.6E ED VR  ·  210 mm  ·  1/5000 s  ·  f/6.3  ·  ISO 450</span></figcaption></figure>
+<figure class="fig"><img src="manual/m19.jpg" loading="lazy" alt=""><figcaption><span class="lead-rem">REMOVED · MOTION BLUR</span> A bird is here - but it&#x27;s a motion-blur smear. No edit can bring back focus that never existed.<span class="exif">NIKON D500  ·  AF-S Nikkor 200-500mm f/5.6E ED VR  ·  500 mm  ·  1/800 s  ·  f/6.3  ·  ISO 4000</span></figcaption></figure>
+<h3>Three birds, three steps each</h3>
+<p>Everything that survives the cull goes on the same journey, and the next three pages show it whole - each bird on a single page. Step 1 is the frame straight off the card. Step 2 shows what the app actually saw: the green solid box is the bird it found, and the orange dashed box is the crop it planned around that bird. Step 3 is the finished photograph.</p>
+<figure class="fig"><img src="manual/m20.jpg" loading="lazy" alt=""><figcaption><span class="lead-grey">1 · ORIGINAL</span> A swallow in flight - tiny in the frame and off-center, but tack sharp. A keeper.<span class="exif">NIKON D500  ·  AF-S Nikkor 200-500mm f/5.6E ED VR  ·  200 mm  ·  1/5000 s  ·  f/6.3  ·  ISO 500</span></figcaption></figure>
+<figure class="fig"><img src="manual/m21.jpg" loading="lazy" alt=""><figcaption><span class="lead-kept">2 · WHAT THE APP SAW</span> The bird found against the open sky; flight is action, so the planned crop keeps it centered.</figcaption></figure>
+<figure class="fig"><img src="manual/m22.jpg" loading="lazy" alt=""><figcaption><span class="lead-after">3 · RESULT</span> Denoised and cropped in - the empty sky becomes a deliberate composition.</figcaption></figure>
+<figure class="fig"><img src="manual/m23.jpg" loading="lazy" alt=""><figcaption><span class="lead-grey">1 · ORIGINAL</span> A tanager deep in the foliage - dark and grainy, but in focus. A keeper.<span class="exif">NIKON D500  ·  AF-S Nikkor 200-500mm f/5.6E ED VR  ·  500 mm  ·  1/4000 s  ·  f/6.3  ·  ISO 3600</span></figcaption></figure>
+<figure class="fig"><img src="manual/m24.jpg" loading="lazy" alt=""><figcaption><span class="lead-kept">2 · WHAT THE APP SAW</span> The bird spotted in the leaves; perched, so the crop plans a rule-of-thirds placement.</figcaption></figure>
+<figure class="fig"><img src="manual/m25.jpg" loading="lazy" alt=""><figcaption><span class="lead-after">3 · RESULT</span> Color corrected, grain cleaned, and cropped - the postage-stamp bird becomes the subject.</figcaption></figure>
+<figure class="fig"><img src="manual/m26.jpg" loading="lazy" alt=""><figcaption><span class="lead-grey">1 · ORIGINAL</span> A flycatcher on a bare branch - small, off-center, grainy. A keeper.<span class="exif">NIKON D500  ·  AF-S Nikkor 200-500mm f/5.6E ED VR  ·  500 mm  ·  1/2000 s  ·  f/6.3  ·  ISO 4000</span></figcaption></figure>
+<figure class="fig"><img src="manual/m27.jpg" loading="lazy" alt=""><figcaption><span class="lead-kept">2 · WHAT THE APP SAW</span> Found and framed: perched bird, rule-of-thirds crop planned with space in front of its gaze.</figcaption></figure>
+<figure class="fig"><img src="manual/m28.jpg" loading="lazy" alt=""><figcaption><span class="lead-after">3 · RESULT</span> Brightened, denoised, and reframed - automatically. This is the file you receive.</figcaption></figure>
+<h3>Product Photos mode</h3>
+<p>A different job entirely: makeup and cosmetics shots for listings. The product is cut out cleanly, lighting and color are corrected, and it&#x27;s placed on a background you choose — square-cropped and consistent across the whole set.</p>
+<h2 class="sec" id="8-ai-denoise-cleaning-grain-the-modern-way">8 · AI Denoise — cleaning grain the modern way</h2>
+<p>Classic noise reduction works like a very smart blur: it finds similar patches and averages them. On mild grain that&#x27;s fine. On heavy grain — an ISO 4000 bird at dusk — it faces an impossible choice: leave the grain, or smear the feathers. It cannot win, because averaging can only remove; it can never rebuild.</p>
+<p>The AI Denoise slider takes the other road. It runs a neural network that was trained on enormous numbers of noisy-and-clean photo pairs, so it has learned what feathers, fur, and eyes actually look like. Instead of averaging the grain away, it recognizes the real texture underneath and reconstructs it. On a test frame so noisy that classic methods left it a mess of rainbow speckle, AI Denoise returned a clean bird with its feather pattern fully revealed.</p>
+<ul><li><b>It&#x27;s a slider, not a switch — </b>0 means off; higher means stronger. Use it on any high-ISO shot.</li><li><b>Bird mode leans in harder — </b>feathers and fur benefit most, so the bird toggle adds extra strength automatically.</li><li><b>It fails safe — </b>if the AI model isn&#x27;t installed or the graphics card runs out of memory, the app quietly falls back to classic noise reduction - your photos always get SOMETHING.</li></ul>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>Building a Topaz-class denoiser from scratch would take years and millions of training images. Instead the app uses SCUNet, a state-of-the-art open research model - properly credited, locally run, nothing uploaded. The engineering work was making it PRACTICAL: tiling huge 45-megapixel frames through it without seams, running on the graphics card when present, and degrading gracefully when it isn&#x27;t.</p><p>Why not make it always-on? Time. It costs ~10 seconds per photo even on a fast GPU. Grain cleanup at that quality is worth 10 seconds for a dusk wildlife shoot and a waste of an hour for 400 sunny keepers - so it&#x27;s the user&#x27;s call, per batch.</p></div>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>SCUNet (Swin-Conv U-Net, ~69 MB weights, blind real-noise model) via PyTorch, CUDA when available. Full-res frames are processed in 1024-px tiles with 128-px overlap and a strictly positive linear feather, accumulated and renormalized - no visible seams. The strength slider blends the AI output with the input. The wrapper never throws: missing weights, missing torch, or an OOM mid-tile all return the input unchanged, and the caller detects that and falls back to the classical path. Planned for the packaged beta: ONNX + DirectML so any Windows GPU accelerates it without bundling CUDA torch.</p></div>
+<h3>The rescue, in pictures</h3>
+<p>The next page is the frame that settled the argument, whole journey on one page. Shot at ISO 4000 in deep forest shade and underexposed, the original is a wall of colored grain - classic noise reduction could not touch it. Step 2 shows that the app still found the bird in the dark (the view is brightened there so you can see the boxes). Step 3 is the same frame after Bird mode with AI Denoise.</p>
+<figure class="fig"><img src="manual/m29.jpg" loading="lazy" alt=""><figcaption><span class="lead-grey">1 · ORIGINAL</span> Underexposed in deep forest shade: the guan is buried under rainbow-colored grain.<span class="exif">NIKON D500  ·  AF-S Nikkor 200-500mm f/5.6E ED VR  ·  450 mm  ·  1/800 s  ·  f/5.6  ·  ISO 4000</span></figcaption></figure>
+<figure class="fig"><img src="manual/m30.jpg" loading="lazy" alt=""><figcaption><span class="lead-kept">2 · WHAT THE APP SAW</span> Even in the dark the detector locks onto the bird, and the crop is planned around it.</figcaption></figure>
+<figure class="fig"><img src="manual/m31.jpg" loading="lazy" alt=""><figcaption><span class="lead-after">3 · RESULT</span> Grain gone, the scaled feather pattern revealed, the red throat clean - and the bird brought close by the automatic crop.</figcaption></figure>
+<h2 class="sec" id="9-the-camera-back-screen">9 · The camera-back screen</h2>
+<p>The interface is deliberately styled like the back of a camera — one screen, one skin, physical-feeling toggles. Photographers already know how to read a camera back; nothing needs explaining. Here it is mid-cull, exactly as you&#x27;d see it:</p>
+<figure class="fig"><img src="manual/m32.png" loading="lazy" alt=""><figcaption><span class="lead-kept">THE APP, LIVE</span> Culling a real card: the eyepiece shows the photo just finished, the bar reads the exact state of the run, and the mode toggles sit on the right like camera switches.</figcaption></figure>
+<h3>A progress bar that kills the waiting anxiety</h3>
+<p>Long batches used to mean a thin bar and a prayer. The progress display was redesigned around one goal: you should never wonder what&#x27;s happening or how long is left. It shows the stage (Culling / Editing / HDR / AI Denoise), the exact photo being worked on, the count, the percentage, and a live time-remaining estimate. And when the cull decides a photo is a keeper, the bar flashes green and tells you — “✓ Keeper — DSC_4521 · 318 kept” — so a 10-minute cull becomes strangely fun to watch.</p>
+<figure class="fig"><img src="manual/m33.png" loading="lazy" alt=""><figcaption><span class="lead-kept">THE PROGRESS BAR, UP CLOSE</span> Stage · photo · count · percentage · the keeper event · time left. Nothing to wonder about.</figcaption></figure>
+<h3>The eyepiece</h3>
+<p>Up top, the little viewfinder shows the photo being processed: first the original, then — the moment it&#x27;s done — the edited result, which holds on screen at least two seconds before the next photo takes over. It&#x27;s a live before/after ticker. The thumbnails are tiny on purpose (a few kilobytes each), so the show costs the batch nothing. A soft vignette darkens the corners, like real eyepiece glass.</p>
+<figure class="fig"><img src="manual/m34.png" loading="lazy" alt=""><figcaption><span class="lead-kept">THE EYEPIECE</span> The photo just edited, held for two seconds — with the corner vignette of real optics.</figcaption></figure>
+<div class="callout tech"><div class="ct">FOR THE TECHNICALLY CURIOUS</div><p>Processing never waits for the display: preview events carry 220-px data-URL thumbnails, and a client-side governor enforces the 2-second hold - events arriving during a hold are deferred with newest-wins, so the queue can&#x27;t grow. Cull progress streams from the analysis threads throttled to ~200 updates per run, but keeper events always push through.</p></div>
+<h2 class="sec" id="10-built-in-safety-and-honesty">10 · Built-in safety and honesty</h2>
+<ul><li><b>Originals are never touched — </b>every operation reads your RAWs and writes NEW files elsewhere. There is no code path that modifies a source file.</li><li><b>Full-disk protection — </b>before a run starts, the app estimates the space needed and refuses to start if the destination drive can&#x27;t hold it.</li><li><b>Honest failure — </b>if a run fails, the bar turns red and says Failed - it will never dress an error up as a green “Finished.” A cancelled run says Stopped.</li><li><b>One bad file can&#x27;t sink the batch — </b>every photo is processed in isolation; a corrupt frame is skipped and logged while the other 2,999 continue.</li><li><b>No silent wrong answers — </b>if the bird model were missing, the app raises an error rather than silently rejecting every photo as “out of focus.”</li></ul>
+<p>These aren&#x27;t features you&#x27;ll notice day to day — which is the point. They&#x27;re the difference between software that demos well and software you trust with a wedding.</p>
+<h2 class="sec" id="11-speaking-every-camera-s-raw-language">11 · Speaking every camera&#x27;s RAW language</h2>
+<p>RAW files are each maker&#x27;s private dialect. RAW Keepers reads Nikon NEF, Canon CR2/CR3, Sony ARW, Fujifilm RAF, Olympus ORF, Panasonic RW2, DNG and more — with nothing extra to install, because a complete RAW decoder ships inside the app.</p>
+<div class="callout why"><div class="ct">WHY THIS WAY — AND NOT ANOTHER</div><p>The alternative - requiring Adobe&#x27;s free DNG Converter - was the original design, and it was dropped for the public beta: asking a first-time user to install a second program before seeing their first result is where most trials die. The bundled decoder (LibRaw) covers virtually everything; Adobe&#x27;s converter is used only if it happens to be present, for the one exotic case (Nikon Z8/Z9 “High Efficiency” files) the open decoder can&#x27;t read.</p></div>
+<h2 class="sec" id="12-how-it-all-gets-tested">12 · How it all gets tested</h2>
+<p>Every method in this manual earned its place by surviving real photos — not samples, but actual shoots: weddings, travel, a 4,107-frame bird day, ISO-4000 dusk sets, concert stages.</p>
+<ul><li><b>Before/after reviews — </b>an edit ships only when the “after” clearly beats the “before.” When a reviewer said the HDR looked flat or the eyes went dark, the recipe changed.</li><li><b>Expert panels — </b>sets of specialist reviewers (portrait, lighting, wildlife, architecture, sports) audit the keepers and edits and argue it out; their consensus drives algorithm changes.</li><li><b>Validation against the photographer — </b>the bird cull was approved only after its designer reviewed every single culled frame from a real shoot and found nothing he&#x27;d have kept.</li><li><b>A full program review — </b>before this manual was written, four independent code reviewers audited the entire program; all 26 findings - from a race condition to a 1-pixel border - were fixed and re-verified with 35 automated checks.</li></ul>
+<h2 class="sec" id="13-a-few-numbers-tech-people-will-enjoy">13 · A few numbers tech people will enjoy</h2>
+<table class="data"><tr><th>What</th><th>Measured</th></tr><tr><td>Frames scanned in the bird-mode validation shoot</td><td>4,107 Nikon D500 NEFs</td></tr><tr><td>Frames the focus-cull removed (all verified misses)</td><td>379 - zero wanted keepers lost</td></tr><tr><td>Bird keepers then AI-denoised, full + cropped versions</td><td>870 each (2.9 hours, GPU)</td></tr><tr><td>AI Denoise speed on a 20-megapixel frame</td><td>~10.5 seconds (CUDA GPU)</td></tr><tr><td>SCUNet model size bundled with the app</td><td>69 MB</td></tr><tr><td>Bird detection cost per frame</td><td>5 inferences (full frame + 2×2 tiles)</td></tr><tr><td>Progress thumbnails sent to the eyepiece</td><td>220 px, ~15 KB, throttled to ~200 pushes/run</td></tr><tr><td>Camera tilt the gyro caught that pixel analysis missed</td><td>9.2°</td></tr><tr><td>Sharpening cutoff (don&#x27;t sharpen grain)</td><td>ISO 800</td></tr><tr><td>Findings in the full-program review, all fixed</td><td>3 critical · 8 moderate · ~15 minor</td></tr><tr><td>Sports-crop batch validation (whole game card)</td><td>61 frames · 0 errors · 0 subjects cut</td></tr></table>
+<h2 class="sec" id="14-plain-english-glossary">14 · Plain-English glossary</h2>
+<p><b>RAW — </b>the unprocessed file your camera saves - all the sensor data, before any look is applied. Bigger and more flexible than a JPEG.</p>
+<p><b>Cull — </b>the first pass through a shoot: throwing out misses and picking the best frame of each moment.</p>
+<p><b>Keeper — </b>a photo that survives the cull.</p>
+<p><b>Bracket / AEB — </b>several shots of the same scene at different brightnesses, taken to be merged later (Auto Exposure Bracketing).</p>
+<p><b>HDR — </b>High Dynamic Range - merging a bracket so both the dark and bright parts of a scene look right at once.</p>
+<p><b>Ghosting — </b>the double-image smear you get when something moved between merged frames.</p>
+<p><b>ISO — </b>the camera&#x27;s light sensitivity setting. Higher ISO = shooting in less light = more grain.</p>
+<p><b>Grain / noise — </b>the gritty speckle in low-light photos.</p>
+<p><b>Catchlight — </b>the tiny sparkle of reflected light in an eye. Lose it and the subject looks lifeless.</p>
+<p><b>White balance — </b>the correction that makes whites white - removing the orange of indoor bulbs or the blue of shade.</p>
+<p><b>Demosaic — </b>the math that turns raw sensor data into a viewable color image.</p>
+<p><b>Neural network — </b>software trained on millions of examples until it recognizes patterns - here, what real feathers look like versus noise.</p>
+<p><b>GPU — </b>the graphics card; a math machine that runs the AI parts many times faster than the main processor.</p>
+<p><b>EXIF / metadata — </b>invisible notes the camera writes into each file: settings, time, lens - and the tilt sensor reading.</p>
+<p><b>Rule of thirds — </b>a composition guideline: subjects placed a third of the way into the frame usually look stronger than dead center.</p>
+<p>RAW Keepers · rawkeepers.com · Your photos never leave your PC.</p>
+</main>
+
+<footer>RAW Keepers · <a href="/">rawkeepers.com</a> · Your photos never leave your PC</footer>
+<div class="top glass" id="top" onclick="scrollTo({top:0,behavior:'smooth'})">↑</div>
+<script>
+  const t=document.getElementById('top');
+  addEventListener('scroll',()=>t.classList.toggle('show',scrollY>900),{passive:true});
+</script>
+</body>
+</html>
