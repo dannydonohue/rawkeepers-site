@@ -265,4 +265,8 @@
       document.getElementById('tab_cull').classList.toggle('on',c);
       document.getElementById('tab_edit').classList.toggle('on',!c);}
   </script>
+<script>
+// the eyepiece always shows a real edited frame (Venice) - never an empty placeholder
+addEventListener('DOMContentLoaded',function(){try{preview('edited','DSC_4520.NEF','venice_thumb.jpg');}catch(e){}});
+</script>
 </body></html>
