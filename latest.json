@@ -1,5 +1,5 @@
 {
-  "version": "1.25.8",
-  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.25.8/RAWKeepers-beta-win64.zip",
-  "notes": "Bird mode, AI Denoise, sports action crop, stage lighting preservation, richer progress bar, 26 fixes."
+  "version": "1.27.2",
+  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.2/RAWKeepers-beta-win64.zip",
+  "notes": "Bug fixes: progress bar can no longer stick on Starting; cull rejects occluded/empty frames; About links to the online Manual."
 }
