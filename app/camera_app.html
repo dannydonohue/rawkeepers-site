@@ -23,8 +23,12 @@
   .vf{position:relative;width:168px;height:108px;border-radius:5px;overflow:hidden;background:#04060a;box-shadow:inset 0 0 0 2px #000,inset 0 0 16px rgba(0,0,0,0.9);}
   .humpbrand{font-size:11px;font-weight:700;letter-spacing:2.5px;color:#cbcdd3;}
   .vf img{width:100%;height:100%;object-fit:cover;display:none;}
+  /* optical vignette OVER the image (a real eyepiece darkens toward all 4 corners) */
+  .vf::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(ellipse 78% 72% at 50% 50%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.38) 82%, rgba(0,0,0,0.78) 100%);
+    box-shadow:inset 0 0 3px 1px rgba(0,0,0,0.85);}
   .vf .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;letter-spacing:1.5px;color:#454a52;}
-  .vf .tlbl{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:8px;background:rgba(0,0,0,0.6);display:none;color:#cdd0d8;}
+  .vf .tlbl{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:8px;background:rgba(0,0,0,0.6);display:none;color:#cdd0d8;z-index:2;}
   .vf .tlbl.edited{color:#7CFF9B;}
 
   .deck{position:relative;height:142px;flex:none;}
@@ -74,9 +78,24 @@
   .soft.locked{background:linear-gradient(180deg,#1b1e25,#131013);border-color:#44413a;color:#7c808a;position:relative;}
   .soft.locked b{color:#9a8c6e;}
   .soft.locked .lock{display:block;color:#ff9a3c;font-size:9px;margin-top:2px;font-weight:600;}
-  .pbar{height:8px;background:#0c0f15;border:1px solid #23262e;border-radius:4px;overflow:hidden;margin:8px 0 4px;}
-  .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9a3c,#e8631a);transition:width .25s;}
   .status{font-size:10px;color:#8a8f99;min-height:13px;}
+  .sheet .acts .btn.disabled{opacity:.45;pointer-events:none;}
+  /* ---- rich two-layer progress component ---- */
+  .prog{background:rgba(0,0,0,.28);border:1px solid #23262e;border-radius:10px;padding:10px 11px;margin:8px 0 4px;}
+  .prow{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+  .stage{font-size:9px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:#1a0d03;padding:3px 8px;border-radius:4px;white-space:nowrap;background:#5f6470;}
+  .stage.cull{background:#ffc074;} .stage.edit{background:#ff9a3c;} .stage.hdr{background:#c79bff;} .stage.ai{background:#66cdf5;} .stage.done{background:#34d39a;} .stage.err{background:#f0997b;}
+  .pname{font-family:'Consolas',monospace;font-size:11.5px;color:#dfe2ea;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pcount{font-size:11px;font-weight:700;color:#9a9ea8;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .pbar2{position:relative;height:15px;background:#0a0d12;border:1px solid #23262e;border-radius:8px;overflow:hidden;}
+  .pbar2 i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9a3c,#e8631a);transition:width .3s;}
+  .pbar2.keep i,.pbar2.done i{background:linear-gradient(90deg,#34d39a,#1fa890);}
+  .ppct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8);}
+  .pevent{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:10.5px;min-height:14px;}
+  .emsg{flex:1;color:#aeb2bb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .emsg .k{color:#3fd9a0;font-weight:700;}
+  .emsg .chk{display:inline-block;width:13px;height:13px;line-height:13px;text-align:center;border-radius:50%;background:#34d39a;color:#0b2018;font-weight:900;font-size:9px;margin-right:4px;vertical-align:-1px;}
+  .peta{color:#ffb15a;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
   .disc{font-size:10px;color:#9aa0aa;cursor:pointer;margin:4px 0;} .disc .dim{color:#6f7682;}
   .settings{max-height:0;overflow:hidden;transition:max-height .25s;} .settings.open{max-height:320px;}
   .prodpanel{margin:4px 0 2px;padding:9px;border-radius:10px;background:rgba(255,255,255,.05)}
@@ -189,9 +208,13 @@
               <div class="softbtns">
                 <div class="soft" id="b_jpg" onclick="run('jpg')"><b>Find Keepers</b>save to JPG</div>
                 <div class="soft locked" id="b_raw" onclick="upgrade()"><b>Find Keepers · RAW</b><span class="lock">🔒 Pro · $5.49/mo</span></div>
+                <div class="soft" id="b_cancel_cull" onclick="cancelRun()" style="display:none">Cancel</div>
               </div>
-              <div class="pbar"><i id="pbar_cull"></i></div>
-              <div class="status" id="status_cull">Free: cull + save as JPG (1–2 MB). Pro saves untouched RAW / .DNG.</div>
+              <div class="prog">
+                <div class="prow"><span class="stage" id="stage_cull">Ready</span><span class="pname" id="pname_cull"></span><span class="pcount" id="pcount_cull"></span></div>
+                <div class="pbar2" id="bar_cull"><i id="pbar_cull"></i><span class="ppct" id="ppct_cull"></span></div>
+                <div class="pevent"><span class="emsg" id="status_cull">Free: cull + save as JPG (1–2 MB). Pro saves untouched RAW / .DNG.</span><span class="peta" id="eta_cull"></span></div>
+              </div>
             </div>
             <div id="page_edit" style="display:none">
               <div class="sec">EDIT &amp; FINISH</div>
@@ -205,8 +228,9 @@
               </div>
               <div class="disc" id="disc" onclick="toggleSettings()">▸ Edit settings <span class="dim">— denoise, retouch, options</span></div>
               <div class="settings" id="settings">
-                <div class="srow"><span style="width:52px">Denoise</span><div class="track" id="t_denoise"><div class="fill"></div><div class="kb"></div></div><span id="p_denoise" style="width:22px;text-align:right">35</span></div>
-                <div class="srow"><span style="width:52px">Retouch</span><div class="track" id="t_retouch"><div class="fill"></div><div class="kb"></div></div><span id="p_retouch" style="width:22px;text-align:right">70</span></div>
+                <div class="srow"><span style="width:64px">Denoise</span><div class="track" id="t_denoise"><div class="fill"></div><div class="kb"></div></div><span id="p_denoise" style="width:22px;text-align:right">35</span></div>
+                <div class="srow" data-tip="AI Denoise — a deep-learning denoiser for heavy high-ISO grain (the kind classic denoise can't clear). It reconstructs real texture instead of smoothing it away — great for any high-ISO shot, and Bird / wildlife mode leans into it harder for feathers and fur. 0 = off. Runs on your GPU when available; falls back to normal denoise if the AI model isn't installed."><span style="width:64px">AI Denoise</span><div class="track" id="t_aidenoise"><div class="fill"></div><div class="kb"></div></div><span id="p_aidenoise" style="width:22px;text-align:right">0</span></div>
+                <div class="srow"><span style="width:64px">Retouch</span><div class="track" id="t_retouch"><div class="fill"></div><div class="kb"></div></div><span id="p_retouch" style="width:22px;text-align:right">70</span></div>
                 <div class="opt on" id="o_cull" onclick="tog('cull')"><div class="sw"></div>Cull first — best shots only</div>
                 <div class="opt on" id="o_straighten" onclick="tog('straighten')"><div class="sw"></div>Straighten horizon</div>
                 <div class="opt" id="o_vupright" onclick="tog('vupright')"><div class="sw"></div>Vertical upright (experimental)</div>
@@ -217,8 +241,11 @@
                 <div class="soft locked" id="b_edit_pro" onclick="upgrade()"><b>Edit All · Print + RAW</b><span class="lock">🔒 Pro · $5.49/mo</span></div>
                 <div class="soft" id="b_cancel" onclick="cancelRun()" style="display:none">Cancel</div>
               </div>
-              <div class="pbar"><i id="pbar_edit"></i></div>
-              <div class="status" id="status_edit">Free: edit + save phone JPGs (~2048px). Pro adds full-res print + 16-bit RAW + HDR.</div>
+              <div class="prog">
+                <div class="prow"><span class="stage" id="stage_edit">Ready</span><span class="pname" id="pname_edit"></span><span class="pcount" id="pcount_edit"></span></div>
+                <div class="pbar2" id="bar_edit"><i id="pbar_edit"></i><span class="ppct" id="ppct_edit"></span></div>
+                <div class="pevent"><span class="emsg" id="status_edit">Free: edit + save phone JPGs (~2048px). Pro adds full-res print + 16-bit RAW + HDR.</span><span class="peta" id="eta_edit"></span></div>
+              </div>
             </div>
           </div>
           <div class="infostrip">
@@ -236,9 +263,10 @@
         <div class="dcap">CULL AMOUNT</div><div class="dval" id="knob_lbl">balanced</div>
         <div class="toggles2">
           <div class="tgl" id="o_hdr" onclick="tog('hdr')" data-tip="Merge HDR exposure brackets — combines a 3-shot bracket into one image. Off = pure culling."><span>Merge HDR</span><div class="sw2"></div></div>
-          <div class="tgl" id="o_sport" onclick="tog('sport')" data-tip="Sports mode — for game/arena shots. CULLS to the frame with the ball in the action and a faster shutter (ignores looking-at-camera), and EDITS every shot for sports: keeps the highlight on the floodlit court and the crowd dark (no global over-brighten), levels a crooked court/horizon, adds pop without lifting the stands."><span>Sports mode</span><div class="sw2"></div></div>
+          <div class="tgl" id="o_sport" onclick="tog('sport')" data-tip="Sports mode — for game/arena shots. CULLS to the frame with the ball in the action and a faster shutter (ignores looking-at-camera), and EDITS every shot for sports: keeps the highlight on the floodlit court and the crowd dark (no global over-brighten), levels a crooked court/horizon, adds pop without lifting the stands, and CROPS into the action — dead floor and empty sides trimmed, with room kept above the play so the basket stays in frame for context."><span>Sports mode</span><div class="sw2"></div></div>
           <div class="tgl" id="o_enhance" onclick="tog('enhance')" data-tip="Enhance (Edit) — optional beautification on top of the normal edit: fixes/deepens the sky (green-cyan cast, blown-sky recovery, bluer) AND boosts the sparkle (catchlight) in the eyes. Off by default; skin tone and exposure are unchanged."><span>Enhance</span><div class="sw2"></div></div>
-          <div class="tgl" id="o_stage" onclick="tog('stage')" data-tip="Concert / Stage — turn ON only for live-music / stage / concert shots. Preserves the dark moody look (singer stays bright, audience stays dark), tames the spotlight so the face isn't blown, lifts colour with vibrance, adds a subtle vignette. Leave OFF for everything else — a candlelit dinner is NOT a concert (lighting alone can't tell them apart, so this is a manual tag)."><span>Concert / Stage</span><div class="sw2"></div></div>
+          <div class="tgl" id="o_stage" onclick="tog('stage')" data-tip="Concert / Stage — turn ON only for live-music / stage / concert shots. The LIGHTING IS THE PICTURE: gel colours are never white-balanced away, blacks stay black, and beams/glow/haze keep their full impact. The performer is fixed LOCALLY instead — a targeted fill so the artist's detail reads clearly, and a face-local highlight tame so the spotlight can't blow the face. Subtle vignette pulls the eye to the stage. Leave OFF for everything else — a candlelit dinner is NOT a concert (lighting alone can't tell them apart, so this is a manual tag)."><span>Concert / Stage</span><div class="sw2"></div></div>
+          <div class="tgl" id="o_bird" onclick="tog('bird')" data-tip="Bird mode — for bird / wildlife shots. CULLS on FOCUS only: keeps every in-focus bird even if it's dark or off-centre, and drops just the out-of-focus and empty 'flew-away' frames (no dedup — a burst of a bird in flight keeps every sharp frame). Then EDITS each keeper for birds: strong grain cleanup that keeps the feathers sharp, brightens a dark bird, and REFRAMES the crop — tighter on a single bird (rule-of-thirds when perched, centered for action), wider for a flock."><span>Bird mode</span><div class="sw2"></div></div>
           <div class="tgl" id="o_product" onclick="tog('product')" data-tip="Product Photos — enhance makeup/cosmetics product shots: cut out the product, clean the lighting and colour, reframe 1:1, and place it on a selectable background. Turn ON, then pick a background in the Edit panel (upload your own anytime)."><span>Product Photos</span><div class="sw2"></div></div>
         </div>
         <div class="grip"></div>
@@ -246,7 +274,7 @@
     </div>
 
     <div class="footer">
-      <div class="nm">Z·CULL</div>
+      <div class="nm" id="app_ver">v1.27.2</div>
       <div class="tagline">On-device AI · culling + editing</div>
     </div>
   </div>
@@ -255,7 +283,7 @@
     <h2 id="m_title">Proceed?</h2><div id="m_body"></div>
     <div class="acts"><div class="btn" id="m_cancel" onclick="closeModal()">Cancel</div><div class="btn primary" id="m_go">Proceed</div></div>
   </div></div>
-  <script src="app.js?v=1.22.2"></script>
+  <script src="app.js?v=1.24.2"></script>
   <script>
     function showPage(p){var c=p==='cull';
       try{sndClick()}catch(e){}
@@ -266,7 +294,8 @@
       document.getElementById('tab_edit').classList.toggle('on',!c);}
   </script>
 <script>
-// the eyepiece always shows a real edited frame (Venice) - never an empty placeholder
+// website demo (visual only - the homepage iframe disables pointer events):
+// the eyepiece always shows a real edited frame (Venice), never an empty placeholder
 addEventListener('DOMContentLoaded',function(){try{preview('edited','DSC_4520.NEF','venice_thumb.jpg');}catch(e){}});
 </script>
 </body></html>

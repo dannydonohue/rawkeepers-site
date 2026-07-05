@@ -10,8 +10,8 @@ if (glow) {
 }
 
 const state = {cull_src:"",cull_dst:"",edit_src:"",edit_dst:"",cull_amt:50,
-  denoise:55,retouch:70,cull:true,straighten:true,vupright:false,autolight:true,
-  hdr:false,sport:false,enhance:false,stage:false,pro:false,busy:false,activeKind:"edit"};
+  denoise:55,retouch:70,aidenoise:0,cull:true,straighten:true,vupright:false,autolight:true,
+  hdr:false,sport:false,enhance:false,stage:false,bird:false,pro:false,busy:false,activeKind:"edit"};
 
 // --- subtle premium UI sounds (Web Audio, synthesised - no asset files, kept quiet) ---
 let _actx=null;
@@ -44,7 +44,7 @@ function bindSlider(id){const t=document.getElementById('t_'+id);if(!t)return;le
   const set=e=>{const r=t.getBoundingClientRect();setSlider(id,(e.clientX-r.left)/r.width*100);};
   t.addEventListener('pointerdown',e=>{drag=true;t.setPointerCapture(e.pointerId);set(e);});
   t.addEventListener('pointermove',e=>{if(drag)set(e);});t.addEventListener('pointerup',()=>drag=false);}
-bindSlider('denoise');bindSlider('retouch');setSlider('denoise',35);setSlider('retouch',70);
+bindSlider('denoise');bindSlider('retouch');bindSlider('aidenoise');setSlider('denoise',35);setSlider('retouch',70);setSlider('aidenoise',0);
 
 // cull-amount KNOB (the camera's mode dial): twist to select one of 5 options.
 const CULL_OPTS=[{amt:5,lbl:'1 best / scene'},{amt:30,lbl:'fewer'},{amt:50,lbl:'balanced'},
@@ -93,7 +93,11 @@ document.querySelectorAll('[data-tip]').forEach(el=>{
 });
 
 function selectivity(){return 1 - state.cull_amt/100;}
-function tog(k){state[k]=!state[k];const el=document.getElementById('o_'+k);if(el)el.classList.toggle('on',state[k]);sndSwitch();if(k==='product')applyProductMode();}
+function tog(k){state[k]=!state[k];const el=document.getElementById('o_'+k);if(el)el.classList.toggle('on',state[k]);sndSwitch();
+  // Shooting modes are mutually exclusive: Sports, Concert/Stage, Bird and Product each drive a
+  // different cull+edit path, so turning one ON turns the others OFF.
+  if(state[k]){const MODES=['sport','stage','bird','product'];if(MODES.indexOf(k)>=0){MODES.forEach(function(m){if(m!==k&&state[m]){state[m]=false;const e2=document.getElementById('o_'+m);if(e2)e2.classList.remove('on');if(m==='product')applyProductMode();}});}}
+  if(k==='product')applyProductMode();}
 async function upgrade(){
   if(window.pywebview&&window.pywebview.api&&window.pywebview.api.activate_pro){   // desktop app: enter a key
     var key=prompt('Enter your RAW Keepers Pro license key:');
@@ -126,11 +130,29 @@ function toggleSettings(){const s=document.getElementById('settings'),d=document
 async function pick(which){const p=await window.pywebview.api.choose_folder();
   if(p){state[which]=p;const c=document.getElementById(which);c.textContent=p;c.classList.add('set');}}
 function isCull(){return state.activeKind==='dng'||state.activeKind==='raw'||state.activeKind==='jpg';}
-function setStatus(t){const e=document.getElementById(isCull()?'status_cull':'status_edit');if(e)e.textContent=t;}
-function setProg(f){const e=document.getElementById(isCull()?'pbar_cull':'pbar_edit');if(e)e.style.width=(f*100)+'%';}
+function _pel(base){return document.getElementById(base+(isCull()?'_cull':'_edit'));}
+function setStatus(t){const e=_pel('status');if(e)e.textContent=t;}
+function _setMsg(html){const e=_pel('status');if(e)e.innerHTML=html;}
+function setProg(f){f=Math.max(0,Math.min(1,f));const e=_pel('pbar');if(e)e.style.width=(f*100)+'%';const p=_pel('ppct');if(p)p.textContent=(f>0?Math.round(f*100)+'%':'');}
+function _setStage(cls,label){const e=_pel('stage');if(e){e.className='stage '+cls;e.textContent=label;}}
+let _prg={start:0,kept:0};
+function progReset(){_prg={start:Date.now(),kept:0};_doneSeen=false;_setStage('cull','Starting…');
+  ['pname','pcount','eta'].forEach(b=>{const e=_pel(b);if(e)e.textContent='';});
+  const bar=_pel('bar');if(bar)bar.classList.remove('keep','done');setProg(0);
+  const kc=document.getElementById('kcount');if(kc)kc.textContent='— / —';   // no stale keeper count
+  _vfReset();}
+function _fmtLeft(s){s=Math.round(s);if(s<60)return '~'+s+'s left';let m=Math.floor(s/60),ss=s%60;
+  if(m<60)return '~'+m+'m'+(ss?' '+ss+'s':'')+' left';return '~'+Math.floor(m/60)+'h '+(m%60)+'m left';}
+function _fmtTook(s){s=Math.round(s);if(s<60)return 'took '+s+'s';let m=Math.round(s/60);return m<90?'took '+m+'m':'took '+(m/60).toFixed(1)+'h';}
+const _RAWRE=/([A-Za-z0-9_\-]+\.(?:NEF|CR2|CR3|ARW|DNG|ORF|RAF|RW2|SRW|HEIC|HEIF|PNG|WEBP|JPG|JPEG|TIF|TIFF))/i;
+function _stageFor(t){
+  if(/^kept |saved to dng|convert/i.test(t))return['edit','Saving'];   // RAW-copy/DNG phase, not culling
+  if(/^keeper |analy|culling|scanning/i.test(t))return['cull','Culling'];
+  if(/hdr/i.test(t))return['hdr','HDR merge'];if(/denois/i.test(t))return['ai','AI denoise'];
+  if(/skip|error|could not|unreadable/i.test(t))return['err','Skipped'];return['edit','Editing'];}
 function setBusy(b){state.busy=b;
-  ['b_jpg','b_edit'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('disabled',b);});
-  const c=document.getElementById('b_cancel');if(c)c.style.display=b?'inline-flex':'none';}
+  ['b_jpg','b_edit','b_raw','b_edit_pro'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('disabled',b);});
+  ['b_cancel','b_cancel_cull'].forEach(id=>{const c=document.getElementById(id);if(c)c.style.display=b?'inline-flex':'none';});}
 async function cancelRun(){setStatus('Finishing the current photo, then stopping…');try{await window.pywebview.api.cancel();}catch(e){}}
 function fmtTime(s){if(s<90)return s+' seconds';const m=s/60;return m<90?Math.round(m)+' minutes':(m/60).toFixed(1)+' hours';}
 
@@ -142,10 +164,10 @@ async function run(kind){
   const [src,dst]=folders(kind);
   if(!src){setStatus('Please choose the photos folder for this step.');return;}
   if(!dst){setStatus('Please choose where to save the results.');return;}
-  setStatus('Finding the best shots…');
-  const est=await window.pywebview.api.preflight(src,dst,kind,state.cull,selectivity(),state.hdr,state.sport);
-  if(est.error){setStatus(est.error);return;}
-  if((est.singles+est.brackets)===0){setStatus('No photos found in that folder.');return;}
+  progReset();setStatus('Finding the best shots…');
+  const est=await window.pywebview.api.preflight(src,dst,kind,state.cull,selectivity(),state.hdr,state.sport,state.bird);
+  if(est.error){_setStage('','Ready');setStatus(est.error);return;}          // don't strand "Starting…"
+  if((est.singles+est.brackets)===0){_setStage('','Ready');setStatus('No photos found in that folder.');return;}
   showModal(kind,est,dst);
 }
 function showModal(kind,est,dst){
@@ -160,7 +182,8 @@ function showModal(kind,est,dst){
   document.getElementById('m_body').innerHTML=body;
   const go=document.getElementById('m_go');go.classList.toggle('disabled',!est.enough);
   go.style.display='';go.textContent='Proceed';const cb=document.getElementById('m_cancel');if(cb)cb.textContent='Cancel';
-  go.onclick=()=>{closeModal();start(kind,dst);};
+  // real guard, not just styling: a full destination drive must NOT be able to start the run
+  go.onclick=est.enough?()=>{closeModal();start(kind,dst,est.token);}:null;
   document.getElementById('modal').classList.add('show');
 }
 function closeModal(){document.getElementById('modal').classList.remove('show');}
@@ -178,6 +201,7 @@ async function showAbout(){
     '<div class="line"><span>Support</span><span>'+(info.support||'support@rawkeepers.com')+'</span></div>'+
     '<div class="line"><span>Website</span><span>'+(info.site||'rawkeepers.com')+'</span></div>'+
     '<div class="line" id="upd_row"><span>Updates</span><span class="upd_val" style="cursor:pointer;color:#9fb3ff" onclick="checkUpdate()">Check now →</span></div>'+
+    '<div class="line" style="cursor:pointer;color:#9fb3ff" onclick="openManual()"><span>How it works — the Manual</span><span>Read →</span></div>'+
     '<div class="line" style="cursor:pointer;color:#9fb3ff" onclick="showTerms()"><span>Terms of Use</span><span>View →</span></div>';
   document.getElementById('m_body').innerHTML=body;
   const go=document.getElementById('m_go');go.classList.remove('disabled');go.style.display='';
@@ -191,11 +215,14 @@ async function checkUpdate(){
   const val=row.querySelector('.upd_val');if(!val)return;
   val.textContent='Checking…';val.style.cursor='default';val.onclick=null;
   let r={};try{r=await window.pywebview.api.check_update();}catch(e){r={error:1};}
-  if(r&&r.update_available){val.innerHTML='<span style="color:#ffb27a">v'+r.latest+' available</span> · <a style="cursor:pointer;color:#9fb3ff" onclick="openSite()">Download →</a>';}
+  if(r&&r.update_available){window._updUrl=r.url||'https://rawkeepers.com';
+    val.innerHTML='<span style="color:#ffb27a">v'+r.latest+' available</span> · <a style="cursor:pointer;color:#9fb3ff" onclick="openUpdate()">Download →</a>';}
   else if(r&&!r.error){val.innerHTML='<span style="color:#34d39a">Up to date · '+(r.current||'')+'</span>';}
   else{val.innerHTML='<span style="color:#9aa3ad">Offline — on '+((r&&r.current)||'this version')+'</span> · <a style="cursor:pointer;color:#9fb3ff" onclick="checkUpdate()">retry</a>';}
 }
 function openSite(){try{window.pywebview.api.open_url('https://rawkeepers.com');}catch(e){}}
+function openManual(){try{window.pywebview.api.open_url('https://rawkeepers.com/manual.html');}catch(e){}}
+function openUpdate(){try{window.pywebview.api.open_url(window._updUrl||'https://rawkeepers.com');}catch(e){}}
 function openPricing(){try{window.pywebview.api.open_url('https://rawkeepers.com/#pricing');}catch(e){}}
 async function showTerms(){
   let t='';try{t=await window.pywebview.api.terms_text();}catch(e){}
@@ -204,9 +231,9 @@ async function showTerms(){
   document.getElementById('m_body').innerHTML='<div style="max-height:300px;overflow:auto;font-size:12px;color:#c9cad2;white-space:pre-wrap;line-height:1.45">'+t+'</div>';
   const go=document.getElementById('m_go');go.style.display='';go.classList.remove('disabled');go.textContent='Back';go.onclick=()=>showAbout();
 }
-async function start(kind,dst){setBusy(true);setProg(0);setStatus('Starting…');
-  await window.pywebview.api.start(kind,dst,{denoise:state.denoise/100,retouch:state.retouch/100,
-    straighten:state.straighten,vupright:state.vupright,autolight:state.autolight,enhance:state.enhance,stage:state.stage,sport:state.sport});}
+async function start(kind,dst,tok){setBusy(true);progReset();setStatus('Starting…');
+  await window.pywebview.api.start(kind,dst,{denoise:state.denoise/100,retouch:state.retouch/100,ai_denoise:state.aidenoise/100,
+    straighten:state.straighten,vupright:state.vupright,autolight:state.autolight,enhance:state.enhance,stage:state.stage,sport:state.sport,bird:state.bird,token:tok});}
 
 /* ---- Product Photos mode ---- */
 function applyProductMode(){
@@ -218,6 +245,9 @@ function applyProductMode(){
   if(be){if(be.classList.contains('soft'))be.innerHTML=on?'<b>Enhance Products</b>on background':'<b>Edit All</b>Phone JPG';
     else be.innerHTML=on?'Enhance Products&nbsp;&nbsp;→&nbsp;&nbsp;on background':'Edit All&nbsp;&nbsp;→&nbsp;&nbsp;Print&nbsp;+&nbsp;Phone';}
   const sec=document.querySelector('#page_edit .sec'); if(sec)sec.textContent=on?'PRODUCT PHOTOS':'EDIT & FINISH';
+  // Product mode reroutes run('edit') to the product flow, so hide the Pro print-edit button - its
+  // label would lie ("Edit All · Print + RAW") while clicking it composited products instead.
+  const bp=document.getElementById('b_edit_pro'); if(bp)bp.style.display=on?'none':'';
   if(on&&!state.bgLoaded)loadBackgrounds();
 }
 async function loadBackgrounds(){
@@ -265,16 +295,75 @@ async function runProduct(){
   go.onclick=()=>{closeModal();startProduct(dst);};
   document.getElementById('modal').classList.add('show');
 }
-async function startProduct(dst){setBusy(true);setProg(0);setStatus('Enhancing products…');
+async function startProduct(dst){setBusy(true);progReset();setStatus('Enhancing products…');
   await window.pywebview.api.start('product',dst,{src:state.edit_src,bg:state.bgPath||'white'});}
 
-function prog(i,n,text){if(n>0)setProg(i/n);setStatus(text+(n>0?`   (${i}/${n})`:''));}
-function preview(stage,name,url){
+function prog(i,n,text){
+  if(!_prg.start)_prg.start=Date.now();
+  text=String(text||'');
+  const isKeeper=/^keeper\s/i.test(text);   // exact cull marker only - run_raw's "Kept x" and
+                                            // run_dng's "N keeper(s) saved" must not flash green
+  let name='';const m=text.match(_RAWRE);
+  if(m)name=m[1];else{const h=text.match(/hdr set\s*\d+/i);if(h)name=h[0];}
+  const sf=_stageFor(text);_setStage(sf[0],sf[1]);
+  const pn=_pel('pname');if(pn&&name)pn.textContent=name;
+  const pc=_pel('pcount');if(pc)pc.textContent=(n>0?i.toLocaleString()+' / '+n.toLocaleString():'');
+  if(n>0)setProg(i/n);
+  const eta=_pel('eta');
+  if(eta){if(n>0&&i>0&&i<n){const el2=(Date.now()-_prg.start)/1000;eta.textContent=_fmtLeft(el2/i*(n-i));}else eta.textContent='';}
+  const bar=_pel('bar');
+  if(isKeeper){_prg.kept++;if(bar)bar.classList.add('keep');
+    _setMsg('<span class="chk">✓</span><span class="k">Keeper</span>'+(name?' — '+name:'')+' · '+_prg.kept+' kept');
+    const kc=document.getElementById('kcount');if(kc)kc.textContent=_prg.kept+(n>0?' / '+n:'');
+  }else{if(bar)bar.classList.remove('keep');setStatus(text);}
+}
+/* Eyepiece viewfinder: show the ORIGINAL while a photo is being worked, flip to the EDITED result,
+   and HOLD the edited view >=2s before the next photo may take over (Danny's design). Pure display
+   pacing - processing is never slowed: events arriving during the hold are deferred and only the
+   NEWEST is kept (older frames drop), so the queue can't grow. Thumbnails are tiny data-URLs. */
+const _vf={holdUntil:0,pending:null,timer:null,HOLD:2200};
+function preview(stage,name,url){_vfShow({stage:stage,name:name,url:url});}
+function _vfShow(ev){
+  const now=Date.now();
+  if(now<_vf.holdUntil){                       // an edited view is still holding - defer, newest wins
+    _vf.pending=ev;
+    if(!_vf.timer)_vf.timer=setTimeout(function(){_vf.timer=null;const p=_vf.pending;_vf.pending=null;if(p)_vfShow(p);},_vf.holdUntil-now+30);
+    return;}
   const img=document.getElementById('thumb_img'),lbl=document.getElementById('thumb_lbl'),ph=document.getElementById('thumb_ph');
-  if(!img)return;img.src=url;img.style.display='block';if(ph)ph.style.display='none';
-  if(lbl){lbl.textContent=(stage==='edited'?'Edited':'Original');lbl.style.display='block';
-    lbl.classList.toggle('edited',stage==='edited');}}
-function done(msg,dst){setBusy(false);setProg(1);setStatus(msg);}
+  if(!img)return;img.src=ev.url;img.style.display='block';if(ph)ph.style.display='none';
+  if(lbl){const nm=ev.name?String(ev.name).replace(/\.[^.]+$/,''):'';
+    lbl.textContent=(ev.stage==='edited'?'Edited':'Original')+(nm?' · '+nm:'');lbl.style.display='block';
+    lbl.classList.toggle('edited',ev.stage==='edited');}
+  if(ev.stage==='edited')_vf.holdUntil=Date.now()+_vf.HOLD;   // the payoff frame earns its 2s
+}
+function _vfReset(){_vf.holdUntil=0;_vf.pending=null;if(_vf.timer){clearTimeout(_vf.timer);_vf.timer=null;}
+  const img=document.getElementById('thumb_img'),lbl=document.getElementById('thumb_lbl'),ph=document.getElementById('thumb_ph');
+  if(img){img.style.display='none';img.removeAttribute('src');}if(lbl)lbl.style.display='none';if(ph)ph.style.display='flex';}
+/* Self-healing progress: evaluate_js pushes can be lost silently (WebView2 suspending on minimize
+   once stranded a live run's bar on "Starting…" while the batch ran fine). Poll the same state
+   from python every 2s and apply anything newer than what we've already shown. */
+let _pollSeq=0,_doneSeen=false;
+async function _progPoll(){
+  try{
+    const s=await window.pywebview.api.progress_state();
+    if(s&&s.seq&&s.seq!==_pollSeq){
+      _pollSeq=s.seq;
+      if(s.done_msg!==null&&s.done_msg!==undefined){if(!_doneSeen)done(s.done_msg,s.dst);}
+      else if(s.text)prog(s.i,s.n,s.text);
+    }
+  }catch(e){}
+  setTimeout(_progPoll,2000);
+}
+function done(msg,dst){if(_doneSeen)return;_doneSeen=true;setBusy(false);
+  msg=String(msg||'');
+  const isErr=/^\s*error/i.test(msg),isCanc=/^\s*cancel/i.test(msg);
+  const bar=_pel('bar');if(bar)bar.classList.remove('keep','done');
+  const pc=_pel('pcount');if(pc)pc.textContent='';
+  const eta=_pel('eta');if(eta)eta.textContent=_prg.start?_fmtTook((Date.now()-_prg.start)/1000):'';
+  if(isErr){_setStage('err','Failed');setStatus(msg);}          // a crash must NOT look like success
+  else if(isCanc){_setStage('','Stopped');setStatus(msg);}
+  else{if(bar)bar.classList.add('done');_setStage('done','Done');setProg(1);
+    _setMsg('<span class="k">Finished</span>'+(msg?' — '+msg:''));}}
 
 async function tickUsage(){try{const u=await window.pywebview.api.usage();
   const set=(m,v,val)=>{const a=document.getElementById(m),b=document.getElementById(v);
@@ -285,6 +374,8 @@ function setBrand(which,vendor){const map={intel:'logo_intel.png',amd:'logo_amd.
   const img=document.getElementById(which+'_logo'),lbl=document.getElementById(which+'_lbl');
   if(img&&map[vendor]){img.src=map[vendor];img.style.display='inline-block';if(lbl)lbl.style.display='none';}}
 window.addEventListener('pywebviewready',async()=>{
+  _progPoll();
+  try{const info=await window.pywebview.api.app_info();const e=document.getElementById('app_ver');if(e&&info&&info.version)e.textContent='v'+info.version;}catch(e){}
   try{ if(!(await window.pywebview.api.agreement_status())) showAgreement(); }catch(e){}
   try{const s=document.getElementById('specs');if(s)s.textContent=await window.pywebview.api.sysinfo();}catch(e){}
   try{const v=await window.pywebview.api.vendors();setBrand('cpu',v.cpu);setBrand('gpu',v.gpu);
