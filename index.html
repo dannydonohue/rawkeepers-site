@@ -449,13 +449,13 @@
     <div class="panel glass">
       <div class="eyebrow">Beta</div>
       <h2>Join the RAW Keepers beta.</h2>
-      <p>We're rolling out invites in waves. Leave your email and we'll tell you the moment your download is ready — for Windows (Mac coming later).</p>
+      <p>We're rolling out invites in waves. Leave your email and we'll tell you the moment your download is ready — for Windows and Apple Silicon Macs.</p>
       <form class="beta-form" id="beta-form" action="https://formsubmit.co/5a2a1dd312681572024271fde90e43f4" method="POST">
         <input type="hidden" name="_subject" value="New RAW Keepers beta signup">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" value="https://rawkeepers.com/thanks.html">
-        <input type="hidden" name="_autoresponse" value="Thanks for joining the RAW Keepers beta — welcome aboard! Download the Windows beta here: https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.2/RAWKeepers-beta-win64.zip  —  Unzip and run RAWKeepers.exe (if Windows shows 'protected your PC', click More info then Run anyway). It reads Olympus, Sony, Canon, Fujifilm, Panasonic, Leica/DNG and lossless Nikon NEF, plus JPG — all on-device, so your photos never leave your computer. Includes Bird/wildlife mode, AI Denoise, sports action crops and concert-light preservation. The beta expires August 19, 2026. We'd love your feedback — just reply to this email. — The RAW Keepers team, rawkeepers.com">
+        <input type="hidden" name="_autoresponse" value="Thanks for joining the RAW Keepers beta — welcome aboard! Windows beta: https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.2/RAWKeepers-beta-win64.zip — unzip and run RAWKeepers.exe (if Windows shows 'protected your PC', click More info then Run anyway). Mac beta (Apple Silicon, M1+): https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.9-mac/RAWKeepers-beta-mac-arm64.zip — unzip, then on first launch approve it under System Settings, Privacy and Security, Open Anyway (not notarized yet). It reads Olympus, Sony, Canon, Fujifilm, Panasonic, Leica/DNG and lossless Nikon NEF, plus JPG — all on-device, so your photos never leave your computer. Includes Bird/wildlife mode, AI Denoise, sports action crops and concert-light preservation. The beta expires August 19, 2026. We'd love your feedback — just reply to this email. — The RAW Keepers team, rawkeepers.com">
         <div class="beta-q">I'd like to beta-test because I'm a…</div>
         <div class="beta-opts">
           <label><input type="radio" name="I am a" value="Professional Photographer" required> Professional Photographer</label>
@@ -471,7 +471,7 @@
         </div>
       </form>
       <div class="beta-msg" id="beta-msg"></div>
-      <div class="req">Downloads open soon · Windows 10/11 · your photos never leave your computer</div>
+      <div class="req">Windows 10/11 &amp; Mac (Apple Silicon, M1+) · your photos never leave your computer</div>
     </div>
   </div>
 </section>
@@ -485,7 +485,14 @@
     </div>
     <div class="card glass" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
-        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#241704;background:linear-gradient(140deg,#f4c577,#e7a23c);padding:4px 12px;border-radius:8px">LATEST · BETA v1.27.2</span>
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#241704;background:linear-gradient(140deg,#f4c577,#e7a23c);padding:4px 12px;border-radius:8px">LATEST · BETA v1.27.9 · MAC</span>
+        <span style="color:var(--txt3);font-size:13.5px">July 7, 2026</span>
+      </div>
+      <p style="margin:0;color:var(--txt2)">RAW Keepers comes to the Mac. The first macOS beta — the full app, running natively on Apple Silicon (M1 and newer) with the AI accelerated on the Apple GPU. Same on-device promise: your photos never leave your computer. Grab it from the <a href="#download" style="color:var(--accent2)">beta signup</a>; first launch needs a one-time approval in System Settings → Privacy &amp; Security (the beta isn't notarized yet).</p>
+    </div>
+    <div class="card glass" style="opacity:.85;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--txt2);background:rgba(255,255,255,.08);border:1px solid var(--bdr);padding:4px 12px;border-radius:8px">BETA v1.27.2</span>
         <span style="color:var(--txt3);font-size:13.5px">July 5, 2026</span>
       </div>
       <p style="margin:0;color:var(--txt2)">Bug fixes — no new features. The progress bar can no longer get stuck on "Starting…" during a long batch, the cull now rejects occluded/empty frames (a mostly-blocked shot can't sneak in as a keeper), and the About panel links to the new online <a href="manual.html" style="color:var(--accent2)">Manual</a>.</p>
