@@ -2,9 +2,9 @@
   "version": "1.27.2",
   "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.2/RAWKeepers-beta-win64.zip",
   "notes": "Bug fixes: progress bar can no longer stick on Starting; cull rejects occluded/empty frames; About links to the online Manual.",
-  "version_mac": "1.28.7",
-  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.28.7-mac/RAWKeepers-beta-mac-arm64.zip",
-  "notes_mac": "DNG Converter setup now opens Adobe's current installer (18.4.1) via a link we keep updated — no more stale or stalling downloads. Plus the About-box version fix and reliable external links.",
+  "version_mac": "1.28.8",
+  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.28.8-mac/RAWKeepers-beta-mac-arm64.zip",
+  "notes_mac": "The progress bar now moves during RAW-to-DNG conversion (it previously looked frozen through the longest part of a batch, then jumped to done). Plus the DNG Converter setup, About-box version, and reliable-links fixes.",
   "dng_mac": "https://download.adobe.com/pub/adobe/dng/mac/DNGConverter_18_4_1.dmg",
   "dng_win": "https://helpx.adobe.com/camera-raw/using/adobe-dng-converter.html"
 }
