@@ -2,7 +2,7 @@
   "version": "1.27.2",
   "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.2/RAWKeepers-beta-win64.zip",
   "notes": "Bug fixes: progress bar can no longer stick on Starting; cull rejects occluded/empty frames; About links to the online Manual.",
-  "version_mac": "1.28.1",
-  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.28.1-mac/RAWKeepers-beta-mac-arm64.zip",
-  "notes_mac": "Beta now unlocks every feature, Pro included (RAW/.DNG, Print, HDR) — no key needed while the beta window is open. Plus: license and settings now stored properly in Application Support."
+  "version_mac": "1.28.3",
+  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.28.3-mac/RAWKeepers-beta-mac-arm64.zip",
+  "notes_mac": "Your beta window is now personal: 30 days of the full app (Pro included) starting from your first launch — no key needed. Update to keep your window accurate."
 }
