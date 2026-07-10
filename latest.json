@@ -2,7 +2,7 @@
   "version": "1.27.2",
   "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.2/RAWKeepers-beta-win64.zip",
   "notes": "Bug fixes: progress bar can no longer stick on Starting; cull rejects occluded/empty frames; About links to the online Manual.",
-  "version_mac": "1.28.3",
-  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.28.3-mac/RAWKeepers-beta-mac-arm64.zip",
-  "notes_mac": "Your beta window is now personal: 30 days of the full app (Pro included) starting from your first launch — no key needed. Update to keep your window accurate."
+  "version_mac": "1.28.4",
+  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.28.4-mac/RAWKeepers-beta-mac-arm64.zip",
+  "notes_mac": "Fixes a silent failure: converting RAW to DNG without Adobe DNG Converter now shows a clear error instead of 'done' with an empty folder. New one-time setup prompt installs the free converter straight from Adobe. Plus: personal 30-day full-app beta window from your first launch."
 }
