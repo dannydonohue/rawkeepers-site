@@ -144,14 +144,17 @@
   .bigbtn{min-width:60px;padding:12px 4px;border-radius:9px;text-align:center;font-size:11px;font-weight:600;letter-spacing:1.5px;color:#cdd0d8;cursor:pointer;
     background:linear-gradient(180deg,#2c2f35,#16181c);border:1px solid #3c4049;box-shadow:0 2px 5px rgba(0,0,0,0.5),inset 0 1px 1px rgba(255,255,255,0.1);}
   .bigbtn.on{color:#ff9a3c;border-color:#ff9a3c;box-shadow:0 0 12px rgba(255,150,50,0.5),inset 0 1px 1px rgba(255,255,255,0.1);}
-  /* HDR / Sport TOGGLE SWITCHES under the knob (larger, slider style) */
-  .toggles2{display:flex;flex-direction:column;gap:15px;margin-top:18px;width:176px;}
+  .betatag{position:absolute;top:52px;left:0;right:0;text-align:center;font-size:8.5px;font-weight:700;letter-spacing:2.5px;color:#ff9a3c;opacity:.72;pointer-events:none;}
+  /* Mode TOGGLE SWITCHES under the knob (slider style). Compact: 7 rows must fit the
+     rear column WITHOUT crowding the knob (Danny: the knob was getting squished when
+     the Split-sessions toggle arrived) - 7 rows now take less height than 6 used to. */
+  .toggles2{display:flex;flex-direction:column;gap:11px;margin-top:14px;width:176px;}
   .tgl{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-size:12px;color:#c4c7cf;}
-  .tgl .sw2{position:relative;width:52px;height:28px;border-radius:999px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.16);flex:none;transition:background .15s;}
-  .tgl .sw2::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#e9e9ef;box-shadow:0 1px 3px rgba(0,0,0,0.5);transition:left .15s;}
+  .tgl .sw2{position:relative;width:46px;height:24px;border-radius:999px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.16);flex:none;transition:background .15s;}
+  .tgl .sw2::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#e9e9ef;box-shadow:0 1px 3px rgba(0,0,0,0.5);transition:left .15s;}
   .tgl.on{color:#ffd9bd;}
   .tgl.on .sw2{background:linear-gradient(180deg,#ff9a3c,#e1601a);border-color:rgba(255,255,255,0.35);}
-  .tgl.on .sw2::after{left:26px;}
+  .tgl.on .sw2::after{left:24px;}
   .fnrow{display:flex;gap:18px;margin-top:14px;}
   .fbtn{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
   .fbtn .b{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#2e313a,#141519);border:1px solid #3a3e48;box-shadow:0 3px 6px rgba(0,0,0,0.5),inset 0 1px 1px rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:13px;color:#aeb2bb;}
@@ -191,6 +194,7 @@
       <div class="deckbtns">
         <div class="bigbtn on" id="tab_cull" onclick="showPage('cull')">CULL</div>
         <div class="bigbtn" id="tab_edit" onclick="showPage('edit')">EDIT</div>
+        <div class="betatag" id="betatag">BETA</div>
       </div>
       <div class="cmddial" id="aboutbtn" onclick="showAbout()" title="About RAW Keepers — version & your plan"><span class="ci">i</span><span class="clbl">ABOUT</span></div>
     </div>
@@ -267,6 +271,7 @@
           <div class="tgl" id="o_enhance" onclick="tog('enhance')" data-tip="Enhance (Edit) — optional beautification on top of the normal edit: fixes/deepens the sky (green-cyan cast, blown-sky recovery, bluer) AND boosts the sparkle (catchlight) in the eyes. Off by default; skin tone and exposure are unchanged."><span>Enhance</span><div class="sw2"></div></div>
           <div class="tgl" id="o_stage" onclick="tog('stage')" data-tip="Concert / Stage — turn ON only for live-music / stage / concert shots. The LIGHTING IS THE PICTURE: gel colours are never white-balanced away, blacks stay black, and beams/glow/haze keep their full impact. The performer is fixed LOCALLY instead — a targeted fill so the artist's detail reads clearly, and a face-local highlight tame so the spotlight can't blow the face. Subtle vignette pulls the eye to the stage. Leave OFF for everything else — a candlelit dinner is NOT a concert (lighting alone can't tell them apart, so this is a manual tag)."><span>Concert / Stage</span><div class="sw2"></div></div>
           <div class="tgl" id="o_bird" onclick="tog('bird')" data-tip="Bird mode — for bird / wildlife shots. CULLS on FOCUS only: keeps every in-focus bird even if it's dark or off-centre, and drops just the out-of-focus and empty 'flew-away' frames (no dedup — a burst of a bird in flight keeps every sharp frame). Then EDITS each keeper for birds: strong grain cleanup that keeps the feathers sharp, brightens a dark bird, and REFRAMES the crop — tighter on a single bird (rule-of-thirds when perched, centered for action), wider for a flock."><span>Bird mode</span><div class="sw2"></div></div>
+          <div class="tgl" id="o_sessions" onclick="tog('sessions')" data-tip="Split sessions — shot several different shoots on one card? Turn this on and RAW Keepers groups the photos into separate shoots by their capture time (a gap of about 2 hours or more starts a new session), then saves each shoot into its own Session_1, Session_2, Session_3… folder inside your destination. Works with keep-RAW, convert-to-DNG, and Edit."><span>Split sessions</span><div class="sw2"></div></div>
           <div class="tgl" id="o_product" onclick="tog('product')" data-tip="Product Photos — enhance makeup/cosmetics product shots: cut out the product, clean the lighting and colour, reframe 1:1, and place it on a selectable background. Turn ON, then pick a background in the Edit panel (upload your own anytime)."><span>Product Photos</span><div class="sw2"></div></div>
         </div>
         <div class="grip"></div>
@@ -274,7 +279,7 @@
     </div>
 
     <div class="footer">
-      <div class="nm" id="app_ver">v1.27.2</div>
+      <div class="nm" id="app_ver"></div>
       <div class="tagline">On-device AI · culling + editing</div>
     </div>
   </div>

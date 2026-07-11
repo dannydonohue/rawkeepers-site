@@ -11,7 +11,7 @@ if (glow) {
 
 const state = {cull_src:"",cull_dst:"",edit_src:"",edit_dst:"",cull_amt:50,
   denoise:55,retouch:70,aidenoise:0,cull:true,straighten:true,vupright:false,autolight:true,
-  hdr:false,sport:false,enhance:false,stage:false,bird:false,pro:false,busy:false,activeKind:"edit"};
+  hdr:false,sport:false,enhance:false,stage:false,bird:false,sessions:false,pro:false,busy:false,activeKind:"edit"};
 
 // --- subtle premium UI sounds (Web Audio, synthesised - no asset files, kept quiet) ---
 let _actx=null;
@@ -137,6 +137,9 @@ function setProg(f){f=Math.max(0,Math.min(1,f));const e=_pel('pbar');if(e)e.styl
 function _setStage(cls,label){const e=_pel('stage');if(e){e.className='stage '+cls;e.textContent=label;}}
 let _prg={start:0,kept:0};
 function progReset(){_prg={start:Date.now(),kept:0};_doneSeen=false;_setStage('cull','Starting…');
+  // baseline the poll to the CURRENT python seq, or a not-yet-polled done_msg from the
+  // PREVIOUS run replays into this one and instantly marks it "Done"
+  try{window.pywebview.api.progress_state().then(function(s){if(s&&s.seq)_pollSeq=s.seq;});}catch(e){}
   ['pname','pcount','eta'].forEach(b=>{const e=_pel(b);if(e)e.textContent='';});
   const bar=_pel('bar');if(bar)bar.classList.remove('keep','done');setProg(0);
   const kc=document.getElementById('kcount');if(kc)kc.textContent='— / —';   // no stale keeper count
@@ -165,7 +168,9 @@ async function run(kind){
   if(!src){setStatus('Please choose the photos folder for this step.');return;}
   if(!dst){setStatus('Please choose where to save the results.');return;}
   progReset();setStatus('Finding the best shots…');
-  const est=await window.pywebview.api.preflight(src,dst,kind,state.cull,selectivity(),state.hdr,state.sport,state.bird);
+  const sessAtScan=state.sessions;   // snapshot: flipping the toggle mid-scan must not desync
+  const est=await window.pywebview.api.preflight(src,dst,kind,state.cull,selectivity(),state.hdr,state.sport,state.bird,sessAtScan);
+  est.sessOn=sessAtScan;
   if(est.error){_setStage('','Ready');setStatus(est.error);return;}          // don't strand "Starting…"
   if((est.singles+est.brackets)===0){_setStage('','Ready');setStatus('No photos found in that folder.');return;}
   showModal(kind,est,dst);
@@ -176,6 +181,8 @@ function showModal(kind,est,dst){
   const kept=state.cull?`Keeping the best ${est.singles} photo(s)${est.brackets?'  +  '+est.brackets+' HDR set(s)':''}${est.total_all?'   of '+est.total_all+' total':''}`:`Photos: ${est.singles}`;
   const freeTxt=est.free_gb!=null?`   (free on ${est.drive}: ${est.free_gb} GB)`:'';
   let body=`<div class="line"><span>${kept}</span></div>`+
+    (est.sessOn&&est.sessions>1?`<div class="line"><span>Split into sessions</span><span>${est.sessions} shoots → Session_1 … Session_${est.sessions}</span></div>`:'')+
+    (est.sessOn&&est.sessions===1?`<div class="line"><span>Split sessions</span><span>all one shoot — no split needed</span></div>`:'')+
     `<div class="line"><span>Estimated time</span><span>~${fmtTime(est.secs)}</span></div>`+
     `<div class="line"><span>Estimated space</span><span>~${est.need_gb} GB${freeTxt}</span></div>`;
   if(!est.enough)body+=`<div class="warn">Not enough free space on ${est.drive}. Choose a destination with more room.</div>`;
@@ -183,13 +190,47 @@ function showModal(kind,est,dst){
   const go=document.getElementById('m_go');go.classList.toggle('disabled',!est.enough);
   go.style.display='';go.textContent='Proceed';const cb=document.getElementById('m_cancel');if(cb)cb.textContent='Cancel';
   // real guard, not just styling: a full destination drive must NOT be able to start the run
-  go.onclick=est.enough?()=>{closeModal();start(kind,dst,est.token);}:null;
+  go.onclick=est.enough?()=>{closeModal();start(kind,dst,est.token,est.sessOn);}:null;
   document.getElementById('modal').classList.add('show');
 }
 function closeModal(){document.getElementById('modal').classList.remove('show');}
 
+async function checkDngSetup(){
+  try{const d=await window.pywebview.api.dng_converter_status();
+    if(d&&d.installed===false)showDngSetup();}catch(e){}
+}
+function showDngSetup(){
+  document.getElementById('m_title').textContent='One-time setup — RAW decoding';
+  document.getElementById('m_body').innerHTML=
+    '<div style="font-size:13px;color:#c9cad2;line-height:1.6">Converting RAW to DNG (and the best HDR merging) uses <b style="color:#fff">Adobe DNG Converter</b> — free from Adobe. Finding keepers and editing work without it.<br><br>'+
+    '1) Click below — the official Adobe download opens in your browser.<br>'+
+    '2) Run the installer.<br>'+
+    '3) Come back here and click <b style="color:#fff">Check again</b>.<br><br>'+
+    '<span style="color:#9aa3ad">If nothing downloads, get it manually: search Adobe for "DNG Converter" or visit helpx.adobe.com → Camera Raw → Adobe DNG Converter.</span>'+
+    '<div id="dng_msg" style="margin-top:10px;font-size:12.5px;color:#ffb27a;min-height:16px"></div></div>';
+  const go=document.getElementById('m_go');go.style.display='';go.classList.remove('disabled');
+  go.textContent='Get Adobe DNG Converter (free)';
+  go.onclick=async function(){
+    go.textContent='Finding the latest Adobe installer…';go.classList.add('disabled');
+    try{await window.pywebview.api.install_dng_converter();}catch(e){}
+    go.classList.remove('disabled');
+    go.textContent='Check again';
+    go.onclick=async function(){
+      let d={};try{d=await window.pywebview.api.dng_converter_status();}catch(e){}
+      const fb=document.getElementById('dng_msg');   // feedback INSIDE the modal - setStatus wrote
+      if(d&&d.installed){                            // to a panel hidden behind this dialog
+        if(fb){fb.style.color='#34d39a';fb.textContent='Found — RAW → DNG unlocked. You\'re all set.';}
+        setTimeout(closeModal,1200);
+        setStatus('Adobe DNG Converter found — RAW → DNG unlocked.');
+      }else if(fb){fb.textContent='Not found yet — finish the Adobe install, then Check again.';}
+    };
+  };
+  const cb=document.getElementById('m_cancel');if(cb)cb.textContent='Later';
+  document.getElementById('modal').classList.add('show');
+}
 async function showAbout(){
   let info={};try{info=await window.pywebview.api.app_info();}catch(e){}
+  let dng={installed:true};try{dng=await window.pywebview.api.dng_converter_status();}catch(e){}
   const pro=!!state.pro;
   document.getElementById('m_title').textContent='About '+(info.name||'RAW Keepers');
   let body=
@@ -197,6 +238,7 @@ async function showAbout(){
     '<div class="line"><span>Your plan</span><span style="color:'+(pro?'#34d39a':'#ffb27a')+';font-weight:700">'+(pro?'Pro — unlocked ✓':'Free')+'</span></div>';
   if(!pro) body+='<div class="line" style="cursor:pointer;color:#9fb3ff" onclick="closeModal();upgrade()"><span>Have a license key?</span><span>Enter it →</span></div>';
   body+=
+    '<div class="line"'+(dng.installed?'':' style="cursor:pointer;color:#9fb3ff" onclick="closeModal();showDngSetup()"')+'><span>Adobe DNG Converter</span><span>'+(dng.installed?'Installed ✓':'Set up →')+'</span></div>'+
     '<div class="line"><span>Privacy</span><span>On-device · photos never leave your PC</span></div>'+
     '<div class="line"><span>Support</span><span>'+(info.support||'support@rawkeepers.com')+'</span></div>'+
     '<div class="line"><span>Website</span><span>'+(info.site||'rawkeepers.com')+'</span></div>'+
@@ -231,9 +273,10 @@ async function showTerms(){
   document.getElementById('m_body').innerHTML='<div style="max-height:300px;overflow:auto;font-size:12px;color:#c9cad2;white-space:pre-wrap;line-height:1.45">'+t+'</div>';
   const go=document.getElementById('m_go');go.style.display='';go.classList.remove('disabled');go.textContent='Back';go.onclick=()=>showAbout();
 }
-async function start(kind,dst,tok){setBusy(true);progReset();setStatus('Starting…');
+async function start(kind,dst,tok,sessOn){setBusy(true);progReset();setStatus('Starting…');
+  const sess=(sessOn===undefined)?state.sessions:sessOn;   // run with the setting the scan used
   await window.pywebview.api.start(kind,dst,{denoise:state.denoise/100,retouch:state.retouch/100,ai_denoise:state.aidenoise/100,
-    straighten:state.straighten,vupright:state.vupright,autolight:state.autolight,enhance:state.enhance,stage:state.stage,sport:state.sport,bird:state.bird,token:tok});}
+    straighten:state.straighten,vupright:state.vupright,autolight:state.autolight,enhance:state.enhance,stage:state.stage,sport:state.sport,bird:state.bird,sessions:sess,token:tok});}
 
 /* ---- Product Photos mode ---- */
 function applyProductMode(){
@@ -300,7 +343,8 @@ async function startProduct(dst){setBusy(true);progReset();setStatus('Enhancing 
 
 function prog(i,n,text){
   if(!_prg.start)_prg.start=Date.now();
-  text=String(text||'');
+  text=String(text||'').replace(/^Session \d+\/\d+ — /,'');   // strip session prefix so the
+                                            // ^-anchored stage/keeper detection below still matches
   const isKeeper=/^keeper\s/i.test(text);   // exact cull marker only - run_raw's "Kept x" and
                                             // run_dng's "N keeper(s) saved" must not flash green
   let name='';const m=text.match(_RAWRE);
@@ -375,7 +419,8 @@ function setBrand(which,vendor){const map={intel:'logo_intel.png',amd:'logo_amd.
   if(img&&map[vendor]){img.src=map[vendor];img.style.display='inline-block';if(lbl)lbl.style.display='none';}}
 window.addEventListener('pywebviewready',async()=>{
   _progPoll();
-  try{const info=await window.pywebview.api.app_info();const e=document.getElementById('app_ver');if(e&&info&&info.version)e.textContent='v'+info.version;}catch(e){}
+  try{const info=await window.pywebview.api.app_info();const e=document.getElementById('app_ver');if(e&&info&&info.version)e.textContent='v'+info.version;
+    const bt=document.getElementById('betatag');if(bt&&info&&info.beta===false)bt.style.display='none';}catch(e){}
   try{ if(!(await window.pywebview.api.agreement_status())) showAgreement(); }catch(e){}
   try{const s=document.getElementById('specs');if(s)s.textContent=await window.pywebview.api.sysinfo();}catch(e){}
   try{const v=await window.pywebview.api.vendors();setBrand('cpu',v.cpu);setBrand('gpu',v.gpu);
@@ -383,6 +428,7 @@ window.addEventListener('pywebviewready',async()=>{
   try{state.pro=await window.pywebview.api.pro_status();}catch(e){}
   applyPlan();
   tickUsage();
+  checkDngSetup();   // one-time setup prompt if Adobe DNG Converter is missing
 });
 applyPlan();   // initial render (Free until pro_status confirms Pro)
 
@@ -417,6 +463,9 @@ function showAgreement(){
   ck.addEventListener('change',()=>{ag.disabled=!ck.checked;ag.style.cursor=ck.checked?'pointer':'not-allowed';ag.style.background=ck.checked?'#ff7a1a':'#3a3743';ag.style.color=ck.checked?'#fff':'#777';});
   o.querySelector('#eula_full_link').addEventListener('click',async e=>{e.preventDefault();const f=o.querySelector('#eula_full');
     if(f.style.display==='none'){try{f.textContent=await window.pywebview.api.terms_text();}catch(_){f.textContent='(full terms unavailable)';}f.style.display='block';}else f.style.display='none';});
-  ag.addEventListener('click',async()=>{if(!ck.checked)return;try{await window.pywebview.api.accept_agreement();}catch(_){}o.remove();});
+  ag.addEventListener('click',async()=>{if(!ck.checked)return;
+    let ok=false;try{ok=await window.pywebview.api.accept_agreement();}catch(_){}
+    if(ok!==false){o.remove();}   // acceptance must actually be RECORDED before the gate lifts
+    else{ag.textContent='Could not save — try again';}});
   o.querySelector('#eula_decline').addEventListener('click',()=>{try{window.pywebview.api.quit();}catch(_){try{window.close();}catch(__){}}});
 }
