@@ -1,7 +1,7 @@
 {
-  "version": "1.27.2",
-  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.2/RAWKeepers-beta-win64.zip",
-  "notes": "Bug fixes: progress bar can no longer stick on Starting; cull rejects occluded/empty frames; About links to the online Manual.",
+  "version": "1.29.3",
+  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.3-win/RAWKeepers-beta-win64.zip",
+  "notes": "Windows catches up to the Mac: the beta is now the FULL app (Pro unlocked during your 30-day window, which starts at your first launch), Split sessions, working blink culling (its AI model finally ships in the bundle), honest conversion counts and cancel reporting, and a first-launch DNG Converter setup prompt.",
   "version_mac": "1.29.1",
   "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.1-mac/RAWKeepers-beta-mac-arm64.zip",
   "notes_mac": "Full-software audit release: 18 fixes. Blink detection now actually works (its AI model was never bundled), filename collisions no longer lose keepers, conversion results are counted honestly, cancel is honest everywhere, the free-disk guard works again, and Mac card-reader junk files are ignored.",
