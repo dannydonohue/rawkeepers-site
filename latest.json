@@ -1,7 +1,7 @@
 {
-  "version": "1.29.7",
-  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.7-win/RAWKeepers-beta-win64.zip",
-  "notes": "Polish on v1.29.3: the progress bar is one forward-only bar across split sessions (no more 100%-then-back-to-20%), the cull knob rides higher, and the window grew a little so all seven mode toggles breathe.",
+  "version": "1.29.9",
+  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.9-win/RAWKeepers-beta-win64.zip",
+  "notes": "Polish on v1.29.3: one forward-only progress bar across split sessions, roomier camera-back layout, and the app now identifies itself as RAW Keepers in Windows dialogs (SmartScreen, Task Manager, file properties).",
   "version_mac": "1.29.1",
   "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.1-mac/RAWKeepers-beta-mac-arm64.zip",
   "notes_mac": "Full-software audit release: 18 fixes. Blink detection now actually works (its AI model was never bundled), filename collisions no longer lose keepers, conversion results are counted honestly, cancel is honest everywhere, the free-disk guard works again, and Mac card-reader junk files are ignored.",
