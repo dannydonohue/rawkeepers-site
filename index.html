@@ -451,7 +451,7 @@
       <h2>Download the RAW Keepers beta.</h2>
       <p>The beta is open — grab it now for Windows or Apple Silicon Macs. The full app, every feature unlocked, free for 30 days from your first launch.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:6px 0 10px">
-        <a class="btn btn-primary" id="dl-win" href="https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.3-win/RAWKeepers-beta-win64.zip">⬇ Download for Windows&nbsp;<span id="dl-win-v" style="opacity:.75;font-weight:500;font-size:13px">v1.29.3</span></a>
+        <a class="btn btn-primary" id="dl-win" href="https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.7-win/RAWKeepers-beta-win64.zip">⬇ Download for Windows&nbsp;<span id="dl-win-v" style="opacity:.75;font-weight:500;font-size:13px">v1.29.7</span></a>
         <a class="btn btn-primary" id="dl-mac" href="https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.1-mac/RAWKeepers-beta-mac-arm64.zip">⬇ Download for Mac&nbsp;<span id="dl-mac-v" style="opacity:.75;font-weight:500;font-size:13px">Apple Silicon · v1.29.1</span></a>
       </div>
       <p style="font-size:13px;color:var(--txt3);max-width:640px;margin:0 auto 22px">Windows: if SmartScreen appears, click More info → Run anyway. Mac: approve the first launch under System Settings → Privacy &amp; Security → Open Anyway (the beta isn't notarized yet). See the <a href="thanks.html" style="color:var(--accent2)">quick-start steps</a>.</p>
@@ -504,11 +504,12 @@ fetch('latest.json',{cache:'no-store'}).then(function(r){return r.json();}).then
     </div>
     <div class="card glass" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#241704;background:linear-gradient(140deg,#f4c577,#e7a23c);padding:4px 12px;border-radius:8px">LATEST · BETA v1.29.3 · WINDOWS</span>
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#241704;background:linear-gradient(140deg,#f4c577,#e7a23c);padding:4px 12px;border-radius:8px">LATEST · BETA v1.29.7 · WINDOWS</span>
         <span style="color:var(--txt3);font-size:13.5px">July 12, 2026</span>
       </div>
       <ul style="margin:0;padding-left:20px;color:var(--txt2);line-height:1.75">
         <li><b style="color:var(--txt)">Windows catches up to the Mac</b> — everything from the last two Mac releases, now on PC.</li>
+        <li><b style="color:var(--txt)">One honest progress bar</b> — with Split sessions on, the bar now runs forward across the whole job instead of restarting per session; plus a roomier layout (higher cull knob, slightly taller window).</li>
         <li><b style="color:var(--txt)">The beta is the full app</b> — every Pro feature unlocked for your personal 30-day window, which starts the first time you launch. No more 🔒 locks for testers.</li>
         <li><b style="color:var(--txt)">Split sessions</b> — several shoots on one card? A Cull-panel toggle writes each shoot to its own Session_1, Session_2… folder by capture time.</li>
         <li><b style="color:var(--txt)">Blink culling actually works now</b> — its AI model was never shipping inside the Windows bundle; eyes-shut frames are properly demoted at last.</li>
