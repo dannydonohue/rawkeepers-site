@@ -2,9 +2,9 @@
   "version": "1.27.2",
   "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.27.2/RAWKeepers-beta-win64.zip",
   "notes": "Bug fixes: progress bar can no longer stick on Starting; cull rejects occluded/empty frames; About links to the online Manual.",
-  "version_mac": "1.29.0",
-  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.0-mac/RAWKeepers-beta-mac-arm64.zip",
-  "notes_mac": "Overnight stability pass: 5 bug fixes verified by editing 240 real photos end to end (cancel now reports honestly during DNG conversion, accurate finish counts, steadier Mac meters, plus two crash/prompt guards). Includes Split sessions, Mac hardware stats, and the BETA badge.",
+  "version_mac": "1.29.1",
+  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.1-mac/RAWKeepers-beta-mac-arm64.zip",
+  "notes_mac": "Full-software audit release: 18 fixes. Blink detection now actually works (its AI model was never bundled), filename collisions no longer lose keepers, conversion results are counted honestly, cancel is honest everywhere, the free-disk guard works again, and Mac card-reader junk files are ignored.",
   "dng_mac": "https://download.adobe.com/pub/adobe/dng/mac/DNGConverter_18_4_1.dmg",
   "dng_win": "https://helpx.adobe.com/camera-raw/using/adobe-dng-converter.html"
 }
