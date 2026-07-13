@@ -2,9 +2,9 @@
   "version": "1.30.6",
   "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.30.6-win/RAWKeepers-beta-v1.30.6-win64.zip",
   "notes": "NEW: LUT color grading - apply any .cube look as the final grade on every exported photo, live in the eyepiece, with seven built-in film & cinema presets (Warm Film, Portrait Film, Vivid Slide, Classic B&W, Teal & Orange, Cinema Roll-off, Matte Fade). Plus bug fixes: the camera UI now scales as one unit at any window size.",
-  "version_mac": "1.29.1",
-  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.29.1-mac/RAWKeepers-beta-v1.29.1-mac-arm64.zip",
-  "notes_mac": "Full-software audit release: 18 fixes. Blink detection now actually works (its AI model was never bundled), filename collisions no longer lose keepers, conversion results are counted honestly, cancel is honest everywhere, the free-disk guard works again, and Mac card-reader junk files are ignored.",
+  "version_mac": "1.30.9",
+  "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.30.9-mac/RAWKeepers-beta-v1.30.9-mac-arm64.zip",
+  "notes_mac": "NEW: LUT color grading - apply any .cube look as the final grade on every exported photo, live in the eyepiece, with seven built-in film & cinema presets (Warm Film, Portrait Film, Vivid Slide, Classic B&W, Teal & Orange, Cinema Roll-off, Matte Fade). Improved: harsh-daylight photos get their shadows opened automatically, halo-free. Plus bug fixes: the camera UI now scales as one unit at any window size.",
   "dng_mac": "https://download.adobe.com/pub/adobe/dng/mac/DNGConverter_18_4_1.dmg",
   "dng_win": "https://helpx.adobe.com/camera-raw/using/adobe-dng-converter.html"
 }
