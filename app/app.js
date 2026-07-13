@@ -11,7 +11,7 @@ if (glow) {
 
 const state = {cull_src:"",cull_dst:"",edit_src:"",edit_dst:"",cull_amt:50,
   denoise:55,retouch:70,aidenoise:0,cull:true,straighten:true,vupright:false,autolight:true,
-  hdr:false,sport:false,enhance:false,stage:false,bird:false,sessions:false,pro:false,busy:false,activeKind:"edit"};
+  hdr:false,sport:false,enhance:false,stage:false,bird:false,sessions:false,lut:"",pro:false,busy:false,activeKind:"edit"};
 
 // --- subtle premium UI sounds (Web Audio, synthesised - no asset files, kept quiet) ---
 let _actx=null;
@@ -276,7 +276,25 @@ async function showTerms(){
 async function start(kind,dst,tok,sessOn){setBusy(true);progReset();setStatus('Starting…');
   const sess=(sessOn===undefined)?state.sessions:sessOn;   // run with the setting the scan used
   await window.pywebview.api.start(kind,dst,{denoise:state.denoise/100,retouch:state.retouch/100,ai_denoise:state.aidenoise/100,
-    straighten:state.straighten,vupright:state.vupright,autolight:state.autolight,enhance:state.enhance,stage:state.stage,sport:state.sport,bird:state.bird,sessions:sess,token:tok});}
+    straighten:state.straighten,vupright:state.vupright,autolight:state.autolight,enhance:state.enhance,stage:state.stage,sport:state.sport,bird:state.bird,lut:state.lut,sessions:sess,token:tok});}
+
+
+/* ---- LUT library (colour-grade .cube looks, applied as the final step of every export) ---- */
+async function refreshLuts(selectName){
+  const sel=document.getElementById('lut_sel'); if(!sel)return;
+  let luts=[]; try{luts=await window.pywebview.api.list_luts();}catch(e){}
+  sel.innerHTML='<option value="">None</option>'+luts.map(l=>'<option value="'+l.file+'">'+l.name+'</option>').join('');
+  if(selectName){const hit=luts.find(l=>l.name===selectName); if(hit){sel.value=hit.file; state.lut=hit.file;}}
+  else sel.value=state.lut||'';
+}
+function lutChanged(){const sel=document.getElementById('lut_sel'); if(sel){state.lut=sel.value; sndSwitch();}}
+async function addLutClick(){
+  let r={}; try{r=await window.pywebview.api.add_lut();}catch(e){r={error:String(e)};}
+  if(r&&r.error){setStatus('LUT not added — '+r.error);return;}
+  if(r&&r.cancelled)return;
+  await refreshLuts(r&&r.name);
+  if(r&&r.name)setStatus('LUT added — '+r.name+' will grade every exported photo.');
+}
 
 /* ---- Product Photos mode ---- */
 function applyProductMode(){
@@ -419,6 +437,7 @@ function setBrand(which,vendor){const map={intel:'logo_intel.png',amd:'logo_amd.
   if(img&&map[vendor]){img.src=map[vendor];img.style.display='inline-block';if(lbl)lbl.style.display='none';}}
 window.addEventListener('pywebviewready',async()=>{
   _progPoll();
+  refreshLuts();
   try{const info=await window.pywebview.api.app_info();const e=document.getElementById('app_ver');if(e&&info&&info.version)e.textContent='v'+info.version;
     const bt=document.getElementById('betatag');if(bt&&info&&info.beta===false)bt.style.display='none';}catch(e){}
   try{ if(!(await window.pywebview.api.agreement_status())) showAgreement(); }catch(e){}

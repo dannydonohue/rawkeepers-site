@@ -1,6 +1,12 @@
 <!doctype html><html><head><meta charset="utf-8"><style>
   *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none;}
   html,body{height:100%;color:#e8e8ee;overflow:hidden;background:radial-gradient(circle at 50% 30%,#1c1e22,#070809);}
+  /* The camera UI is a FIXED 1040x728 design scaled as one unit to fit the window
+     (aspect locked, letterboxed on the body background). Fixes the class of bugs where
+     browser zoom or a small window cut controls out of the frame: nothing inside the
+     stage can ever be clipped, because the stage always fits entirely. */
+  #stage{position:absolute;left:50%;top:50%;width:1040px;height:728px;transform-origin:50% 50%;
+    transform:translate(-50%,-50%) scale(1);}
 
   /* camera body: matte, subtle texture, shaped (rounded) top, deeper bottom */
   .cam{position:absolute;left:18px;right:18px;top:38px;bottom:16px;display:flex;flex-direction:column;
@@ -107,6 +113,8 @@
   .bgthumb.sel{border-color:#ff7a1a}
   .bgadd{margin-top:8px;text-align:center;font-size:12px;color:#ffb27a;cursor:pointer;padding:6px;border:1px dashed rgba(255,178,122,.45);border-radius:8px}
   .srow{display:flex;align-items:center;gap:9px;margin:9px 0;font-size:11px;color:#c4c7cf;}
+  .lutsel{flex:1;min-width:0;background:#101116;color:#d6d3de;border:1px solid #3a3d46;border-radius:7px;font-size:11px;padding:4px 6px;outline:none;}
+  .lutadd{flex:none;font-size:10px;color:#ffb27a;border:1px solid #4a3d33;border-radius:7px;padding:4px 9px;cursor:pointer;background:#191419;}
   .track{position:relative;height:16px;border-radius:8px;background:#0c0f15;border:1px solid #23262e;flex:1;cursor:pointer;}
   .track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:linear-gradient(90deg,#ff9a3c,#e8631a);}
   .track .kb{position:absolute;top:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:#e9e9ef;box-shadow:0 1px 3px rgba(0,0,0,.6);}
@@ -184,6 +192,7 @@
   .sheet .acts .btn.primary{background:#e8631a;border-color:#e8631a;}
 </style></head>
 <body>
+  <div id="stage">
   <div class="cam">
     <div class="hump">
       <div class="shoe"></div>
@@ -234,6 +243,7 @@
               <div class="settings" id="settings">
                 <div class="srow"><span style="width:64px">Denoise</span><div class="track" id="t_denoise"><div class="fill"></div><div class="kb"></div></div><span id="p_denoise" style="width:22px;text-align:right">35</span></div>
                 <div class="srow" data-tip="AI Denoise — a deep-learning denoiser for heavy high-ISO grain (the kind classic denoise can't clear). It reconstructs real texture instead of smoothing it away — great for any high-ISO shot, and Bird / wildlife mode leans into it harder for feathers and fur. 0 = off. Runs on your GPU when available; falls back to normal denoise if the AI model isn't installed."><span style="width:64px">AI Denoise</span><div class="track" id="t_aidenoise"><div class="fill"></div><div class="kb"></div></div><span id="p_aidenoise" style="width:22px;text-align:right">0</span></div>
+                <div class="srow" data-tip="LUT — apply a colour-grade .cube file (exported from Lightroom, Premiere, Resolve…) as the FINAL look on every exported photo: edited keepers, already-good passthroughs and HDR merges alike. Untouched RAW / .DNG copies are never graded. Add your own .cube files any time — they stay in your library."><span style="width:64px">LUT</span><select class="lutsel" id="lut_sel" onchange="lutChanged()"><option value="">None</option></select><span class="lutadd" onclick="addLutClick()">Add…</span></div>
                 <div class="srow"><span style="width:64px">Retouch</span><div class="track" id="t_retouch"><div class="fill"></div><div class="kb"></div></div><span id="p_retouch" style="width:22px;text-align:right">70</span></div>
                 <div class="opt on" id="o_cull" onclick="tog('cull')"><div class="sw"></div>Cull first — best shots only</div>
                 <div class="opt on" id="o_straighten" onclick="tog('straighten')"><div class="sw"></div>Straighten horizon</div>
@@ -297,6 +307,19 @@
       document.getElementById('modebadge').textContent=c?'CULL':'EDIT';
       document.getElementById('tab_cull').classList.toggle('on',c);
       document.getElementById('tab_edit').classList.toggle('on',!c);}
+  </script>
+  </div><!-- /stage -->
+  <script>
+    // keep the camera fully visible at its true aspect in ANY window size
+    function _fitStage(){var st=document.getElementById('stage');if(!st)return;
+      var s=Math.min(innerWidth/1040,innerHeight/728);
+      st.style.transform='translate(-50%,-50%) scale('+s+')';}
+    addEventListener('resize',_fitStage);_fitStage();
+    // WebView2 ships ctrl+wheel / ctrl+- browser zoom ON; zoomed content is exactly how
+    // controls end up cut out of the frame - the camera scales ONLY via the stage.
+    addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault();},{passive:false});
+    addEventListener('keydown',function(e){
+      if(e.ctrlKey&&(e.key==='+'||e.key==='-'||e.key==='='||e.key==='0'))e.preventDefault();});
   </script>
 <script>
 // website demo (visual only - the homepage iframe disables pointer events):
