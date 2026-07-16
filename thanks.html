@@ -34,9 +34,11 @@
     <a class="btn" id="dl-mac" href="https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.30.9-mac/RAWKeepers-beta-v1.30.9-mac-arm64.zip">⬇ Download for Mac (Apple Silicon)</a>
     <div class="steps">
       <b>Quick start — Windows</b><br>
-      1) Unzip it anywhere, then run <b>RAWKeepers.exe</b>.<br>
-      2) If Windows shows "Windows protected your PC", click <b>More info → Run anyway</b> (this beta isn't code-signed yet).<br>
-      3) No install needed — it's a self-contained folder; delete it to remove.<br>
+      1) <b>Extract the whole zip first</b> — right-click it → <b>Extract All…</b>. (Don't run RAWKeepers.exe from inside the zip window — the rest of the app never gets extracted and it fails with several "missing file" errors.)<br>
+      2) Open the extracted <b>RAWKeepers</b> folder and run <b>RAWKeepers.exe</b>.<br>
+      3) If Windows shows "Windows protected your PC", click <b>More info → Run anyway</b> (this beta isn't code-signed yet).<br>
+      4) <b>Windows 10 only:</b> if launch fails with errors mentioning <i>WebView2</i> or <i>Edge</i>, install Microsoft's free <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section">WebView2 runtime</a> (~2 MB, one time), then start the app again. Windows 11 already includes it.<br>
+      5) No install needed — it's a self-contained folder; delete it to remove.<br>
       <b style="display:inline-block;margin-top:10px">Quick start — Mac (Apple Silicon, M1 or newer)</b><br>
       1) Unzip, then move <b>RAWKeepers.app</b> to Applications (or run it from anywhere).<br>
       2) First launch: double-click the app once — macOS shows <i>"Apple could not verify…"</i> with a Move-to-Trash button. <b>Don't move it to the Trash</b> — click <b>Done</b> (this beta isn't notarized yet; nothing is wrong with the app).<br>
