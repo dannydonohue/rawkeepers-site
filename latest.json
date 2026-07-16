@@ -1,7 +1,7 @@
 {
-  "version": "1.30.6",
-  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.30.6-win/RAWKeepers-beta-v1.30.6-win64.zip",
-  "notes": "NEW: LUT color grading - apply any .cube look as the final grade on every exported photo, live in the eyepiece, with seven built-in film & cinema presets (Warm Film, Portrait Film, Vivid Slide, Classic B&W, Teal & Orange, Cinema Roll-off, Matte Fade). Plus bug fixes: the camera UI now scales as one unit at any window size.",
+  "version": "1.31.4",
+  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.31.4-win/RAWKeepers-beta-v1.31.4-win64.zip",
+  "notes": "FIX: Windows launch on machines without Microsoft's WebView2 runtime (common on Windows 10) - the app now checks for it and, if missing, points you to the free one-time install instead of failing with cryptic errors. Also silenced a background log flood. Extract the whole zip before running RAWKeepers.exe. Includes everything from v1.30.6: LUT color grading with seven built-in film & cinema looks.",
   "version_mac": "1.30.9",
   "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.30.9-mac/RAWKeepers-beta-v1.30.9-mac-arm64.zip",
   "notes_mac": "NEW: LUT color grading - apply any .cube look as the final grade on every exported photo, live in the eyepiece, with seven built-in film & cinema presets (Warm Film, Portrait Film, Vivid Slide, Classic B&W, Teal & Orange, Cinema Roll-off, Matte Fade). Improved: harsh-daylight photos get their shadows opened automatically, halo-free. Plus bug fixes: the camera UI now scales as one unit at any window size.",
