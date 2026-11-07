@@ -1,10 +1,11 @@
 {
-  "version": "1.31.8",
-  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.31.8-win/RAWKeepers-beta-v1.31.8-win64.zip",
-  "notes": "NEW: sunsets with people, done right - exposed dark to keep the sunset? The real dusk sky keeps its colour while the people are lifted so you can see them (no fake skies). Bracketed dusk shots merge the sky and lights from every frame with the people from the sharpest one - no ghosts - and the darker bracket frames are no longer discarded. Daylight and indoor photos keep their existing edit. FIX: returning testers no longer see 'beta testing is over' - every new beta version gives a fresh 30 days. Includes the v1.31.4 WebView2 launch fix. Extract the whole zip before running RAWKeepers.exe.",
+  "version": "1.32.2",
+  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.32.2-win/RAWKeepers-Setup-v1.32.2.exe",
+  "notes": "NEW: a real Windows installer - run RAWKeepers-Setup and you're done (Start-menu entry, uninstall from Settings > Apps, no more extracting a 450 MB zip or 'Failed to load Python DLL' when it was run from inside the zip window). NEW: cameras that detect faces (Nikon Z, Sony) - the culler now reads where the camera focused and whether it locked a face, so the frame the camera nailed is the keeper, and people photographed from behind at dusk are found for the sunset rule. FIX: a folder of JPGs only (a card shot JPG, a phone export) said 'No photos found' - it is now culled and edited. FIX: Product Photos works in the shipped app (it never did). FIX: Chinese folder or user names no longer lose camera focus data or break editing. FIX: the first screen no longer flashes 'Free version / Upgrade to Pro' - during the beta it shows every feature unlocked and your days left. Still unsigned: click More info > Run anyway once on the installer.",
   "version_mac": "1.30.9",
   "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.30.9-mac/RAWKeepers-beta-v1.30.9-mac-arm64.zip",
   "notes_mac": "NEW: LUT color grading - apply any .cube look as the final grade on every exported photo, live in the eyepiece, with seven built-in film & cinema presets (Warm Film, Portrait Film, Vivid Slide, Classic B&W, Teal & Orange, Cinema Roll-off, Matte Fade). Improved: harsh-daylight photos get their shadows opened automatically, halo-free. Plus bug fixes: the camera UI now scales as one unit at any window size.",
   "dng_mac": "https://download.adobe.com/pub/adobe/dng/mac/DNGConverter_18_4_1.dmg",
-  "dng_win": "https://helpx.adobe.com/camera-raw/using/adobe-dng-converter.html"
+  "dng_win": "https://helpx.adobe.com/camera-raw/using/adobe-dng-converter.html",
+  "url_zip": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.32.2-win/RAWKeepers-beta-v1.32.2-win64.zip"
 }
