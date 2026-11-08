@@ -1,11 +1,11 @@
 {
-  "version": "1.32.6",
-  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.32.6-win/RAWKeepers-Setup-v1.32.6.exe",
-  "notes": "RAW files only - the camera's JPG twins are never edited. FIX: 'weird sky' on bright overcast days (a white sky was painted grey with a halo). FIX: speckled violet skies in dusk merges - lift capped by noise, people unchanged, AI denoise as the final step on GPU machines. Includes the v1.32.4 bracket-merge exposure fix and the v1.32.2 installer, camera focus/face metadata and JPG-only/Product/Unicode fixes. Still unsigned: click More info > Run anyway once on the installer.",
+  "version": "1.33.0",
+  "url": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.33.0-win/RAWKeepers-Setup-v1.33.0.exe",
+  "notes": "Faces first: people come from the frame with sharp, open eyes and are lit properly. No more dark renders: a floor on every path, night streets and dark interiors pick the frame that shows the scene. Cleaner merges (EXIF exposure steps, frames weighted by measured noise, neutral blacks, white bulbs, no ghosted walkers). Blue-hour casts capped, grainy skies smoothed, full-strength AI denoise when grain is high. Over-exposed camera JPEGs rebuilt from the RAW. A statue is not a face: every detected face is confirmed human before any face rule runs. Includes v1.32.6, v1.32.4 and v1.32.2. Still unsigned: click More info > Run anyway once on the installer.",
   "version_mac": "1.30.9",
   "url_mac": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.30.9-mac/RAWKeepers-beta-v1.30.9-mac-arm64.zip",
   "notes_mac": "NEW: LUT color grading - apply any .cube look as the final grade on every exported photo, live in the eyepiece, with seven built-in film & cinema presets (Warm Film, Portrait Film, Vivid Slide, Classic B&W, Teal & Orange, Cinema Roll-off, Matte Fade). Improved: harsh-daylight photos get their shadows opened automatically, halo-free. Plus bug fixes: the camera UI now scales as one unit at any window size.",
   "dng_mac": "https://download.adobe.com/pub/adobe/dng/mac/DNGConverter_18_4_1.dmg",
   "dng_win": "https://helpx.adobe.com/camera-raw/using/adobe-dng-converter.html",
-  "url_zip": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.32.6-win/RAWKeepers-beta-v1.32.6-win64.zip"
+  "url_zip": "https://github.com/dannydonohue/rawkeepers-site/releases/download/beta-v1.33.0-win/RAWKeepers-beta-v1.33.0-win64.zip"
 }
